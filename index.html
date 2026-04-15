@@ -3,183 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Image Generator Beta</title>
+    <title>AI Vision | Генератор изображений</title>
     <style>
-        :root {
-            --primary: #6366f1;
-            --bg: #0f172a;
-            --card: #1e293b;
-            --text: #f8fafc;
-        }
-
+        /* Современный темный фон с градиентом */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
         }
 
-        .container {
-            background-color: var(--card);
-            padding: 2rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            width: 90%;
+        /* Эффект стекла для главного контейнера */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
             max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             text-align: center;
         }
 
-        h1 { font-size: 1.5rem; margin-bottom: 1.5rem; opacity: 0.9; }
+        h1 {
+            margin-top: 0;
+            font-size: 28px;
+            background: linear-gradient(to right, #a855f7, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
+        p.subtitle {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        /* Стилизация поля ввода и кнопки */
         .input-group {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 30px;
         }
 
         input {
             flex: 1;
-            padding: 12px 15px;
-            border-radius: 10px;
-            border: 1px solid #334155;
-            background: #0f172a;
-            color: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            font-size: 16px;
             outline: none;
+            transition: border-color 0.3s;
         }
 
-        input:focus { border-color: var(--primary); }
+        input:focus {
+            border-color: #a855f7;
+        }
 
         button {
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 0 24px;
+            border-radius: 12px;
             border: none;
-            background: var(--primary);
+            background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
             color: white;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 16px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: transform 0.2s, opacity 0.2s;
         }
 
-        button:hover { opacity: 0.8; transform: translateY(-1px); }
-        button:disabled { background: #475569; cursor: not-allowed; }
+        button:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
 
-        .result-area {
-            margin-top: 20px;
-            min-height: 300px;
-            border: 2px dashed #334155;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        button:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Зона отображения результата */
+        .image-container {
             position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             overflow: hidden;
+            transition: all 0.3s;
         }
 
-        #outputImage {
-            max-width: 100%;
+        .image-container.has-image {
+            border: none;
+            background: transparent;
+        }
+
+        #result-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             display: none;
-            border-radius: 10px;
-            animation: fadeIn 0.5s ease-in;
+            border-radius: 16px;
+            animation: fadeIn 0.8s ease-out;
         }
 
-        .loader {
+        /* Анимация сканирования/загрузки */
+        .scanner {
             display: none;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .status-tag {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0,0,0,0.6);
-            padding: 4px 10px;
-            border-radius: 5px;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(168, 85, 247, 0.2), transparent);
+            animation: scan 1.5s linear infinite;
+        }
+
+        .placeholder-text {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Значок "Нейросеть" */
+        .badge {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            padding: 6px 12px;
+            border-radius: 20px;
             font-size: 12px;
+            font-weight: bold;
+            color: #fbbf24;
             display: none;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>AI Image Generator</h1>
-    
-    <div class="input-group">
-        <input type="text" id="promptInput" placeholder="Опишите картинку (на англ.)...">
-        <button id="generateBtn">Создать</button>
+    <div class="glass-panel">
+        <h1>AI Vision</h1>
+        <p class="subtitle">Введите описание на английском (например: <i>cyberpunk cat, neon lights</i>)</p>
+        
+        <div class="input-group">
+            <input type="text" id="prompt" placeholder="Опишите, что вы хотите увидеть..." autocomplete="off">
+            <button id="btn">Создать</button>
+        </div>
+
+        <div class="image-container" id="img-container">
+            <div class="scanner" id="scanner"></div>
+            <span class="placeholder-text" id="placeholder">Здесь появится магия ИИ ✨</span>
+            <img id="result-image" src="" alt="Сгенерированное изображение">
+            <div class="badge" id="badge">✦ AI Generated</div>
+        </div>
     </div>
 
-    <div class="result-area">
-        <div class="loader" id="loader"></div>
-        <div id="placeholderText">Здесь появится результат работы ИИ</div>
-        <img src="" id="outputImage" alt="Generated result">
-        <div class="status-tag" id="aiTag">Generated by AI</div>
-    </div>
-</div>
+    <script>
+        const btn = document.getElementById('btn');
+        const input = document.getElementById('prompt');
+        const resultImage = document.getElementById('result-image');
+        const scanner = document.getElementById('scanner');
+        const placeholder = document.getElementById('placeholder');
+        const container = document.getElementById('img-container');
+        const badge = document.getElementById('badge');
 
-<script>
-    const btn = document.getElementById('generateBtn');
-    const input = document.getElementById('promptInput');
-    const img = document.getElementById('outputImage');
-    const loader = document.getElementById('loader');
-    const placeholder = document.getElementById('placeholderText');
-    const aiTag = document.getElementById('aiTag');
+        function generateImage() {
+            const promptText = input.value.trim();
+            
+            if (!promptText) {
+                // Визуальная подсказка об ошибке
+                input.style.borderColor = '#ef4444';
+                setTimeout(() => input.style.borderColor = 'rgba(255, 255, 255, 0.1)', 1000);
+                return;
+            }
 
-    btn.addEventListener('click', () => {
-        const prompt = input.value.trim();
-        if (!prompt) return alert('Введите описание!');
+            // Переводим UI в режим загрузки
+            btn.disabled = true;
+            btn.innerText = 'Нейросеть думает...';
+            placeholder.style.display = 'none';
+            resultImage.style.display = 'none';
+            badge.style.display = 'none';
+            scanner.style.display = 'block';
+            container.classList.remove('has-image');
 
-        // Подготовка интерфейса
-        btn.disabled = true;
-        btn.innerText = 'Генерация...';
-        loader.style.display = 'block';
-        placeholder.style.display = 'none';
-        img.style.display = 'none';
-        aiTag.style.display = 'none';
+            // Формируем запрос к Pollinations
+            // Добавляем случайный seed, чтобы при одинаковых запросах были разные картинки
+            const encodedPrompt = encodeURIComponent(promptText);
+            const randomSeed = Math.floor(Math.random() * 100000);
+            const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true&seed=${randomSeed}`;
 
-        // Создаем уникальный URL для генерации (добавляем random для исключения кэша)
-        const encodedPrompt = encodeURIComponent(prompt);
-        const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=500&height=500&nologo=true&seed=${Math.floor(Math.random() * 1000)}`;
+            // Загружаем картинку в фоновом режиме перед показом
+            const imgLoad = new Image();
+            imgLoad.src = imageUrl;
 
-        // Создаем новый объект изображения для предзагрузки
-        const tempImg = new Image();
-        tempImg.src = imageUrl;
+            imgLoad.onload = () => {
+                // Показываем результат
+                resultImage.src = imageUrl;
+                resultImage.style.display = 'block';
+                scanner.style.display = 'none';
+                badge.style.display = 'block';
+                container.classList.add('has-image');
+                
+                // Возвращаем кнопку в исходное состояние
+                btn.disabled = false;
+                btn.innerText = 'Создать';
+            };
 
-        tempImg.onload = () => {
-            img.src = imageUrl;
-            img.style.display = 'block';
-            loader.style.display = 'none';
-            aiTag.style.display = 'block';
-            btn.disabled = false;
-            btn.innerText = 'Создать';
-        };
+            imgLoad.onerror = () => {
+                alert('Произошла ошибка при обращении к нейросети. Попробуйте другой запрос.');
+                btn.disabled = false;
+                btn.innerText = 'Создать';
+                scanner.style.display = 'none';
+                placeholder.style.display = 'block';
+            };
+        }
 
-        tempImg.onerror = () => {
-            alert('Ошибка при генерации. Попробуйте другой запрос.');
-            btn.disabled = false;
-            btn.innerText = 'Создать';
-            loader.style.display = 'none';
-            placeholder.style.display = 'block';
-        };
-    });
+        // Запуск по клику на кнопку
+        btn.addEventListener('click', generateImage);
 
-    // Позволяет нажимать Enter
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') btn.click();
-    });
-</script>
-
+        // Запуск по нажатию клавиши Enter
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                generateImage();
+            }
+        });
+    </script>
 </body>
 </html>
