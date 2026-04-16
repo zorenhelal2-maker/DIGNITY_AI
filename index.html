@@ -51,13 +51,11 @@
     transform: scale(0.96);
   }
 
-  /* ─── CANVAS BACKGROUND ─── */
   #bg-canvas {
     position: fixed; inset: 0;
     z-index: 0;
   }
 
-  /* ─── GRAIN OVERLAY ─── */
   .grain {
     position: fixed; inset: 0;
     z-index: 1;
@@ -67,7 +65,6 @@
     background-size: 180px;
   }
 
-  /* ─── SPHERE WRAPPER ─── */
   .sphere-wrap {
     position: relative;
     z-index: 2;
@@ -76,10 +73,8 @@
 
   #sphere-canvas {
     display: block;
-    border-radius: 50%;
   }
 
-  /* ─── LANDING ─── */
   #screen-landing {
     z-index: 3;
     gap: 0;
@@ -98,10 +93,7 @@
     transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
   }
 
-  .landing-tagline.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  .landing-tagline.visible { opacity: 1; transform: translateY(0); }
 
   .landing-sub {
     font-size: 13px;
@@ -127,10 +119,7 @@
     transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
   }
 
-  .cta-group.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  .cta-group.visible { opacity: 1; transform: translateY(0); }
 
   .btn {
     font-family: var(--font-body);
@@ -170,10 +159,7 @@
     box-shadow: 0 0 36px var(--glow), 0 0 60px var(--glow2);
   }
 
-  /* ─── AUTH SCREEN ─── */
-  #screen-auth {
-    z-index: 4;
-  }
+  #screen-auth { z-index: 4; }
 
   .auth-card {
     background: var(--surface);
@@ -236,9 +222,7 @@
     border: 1px solid var(--border2);
   }
 
-  .field {
-    margin-bottom: 14px;
-  }
+  .field { margin-bottom: 14px; }
 
   .field label {
     display: block;
@@ -289,7 +273,6 @@
 
   .auth-back:hover { color: var(--text); }
 
-  /* ─── APP SCREEN ─── */
   #screen-app {
     z-index: 3;
     justify-content: flex-start;
@@ -339,7 +322,6 @@
     font-size: 11px; font-weight: 600; color: #04040a;
   }
 
-  /* ─── MODE SLIDER ─── */
   .mode-slider-wrap {
     margin: 20px auto 0;
     position: relative;
@@ -389,9 +371,6 @@
 
   .mode-btn.active { color: var(--accent); }
 
-  .mode-icon { font-size: 15px; }
-
-  /* ─── APP BODY ─── */
   .app-body {
     flex: 1;
     width: 100%;
@@ -402,7 +381,6 @@
     position: relative;
   }
 
-  /* ─── PANELS ─── */
   .panel {
     position: absolute;
     inset: 0;
@@ -418,25 +396,12 @@
     overflow: hidden;
   }
 
-  .panel.active {
-    opacity: 1;
-    transform: translateX(0);
-    pointer-events: all;
-  }
+  .panel.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+  .panel.exit-left { opacity: 0; transform: translateX(-30px); }
 
-  .panel.exit-left {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
+  #panel-3d { gap: 20px; }
 
-  /* ─── 3D PANEL ─── */
-  #panel-3d {
-    gap: 20px;
-  }
-
-  .panel-sphere-wrap {
-    flex-shrink: 0;
-  }
+  .panel-sphere-wrap { flex-shrink: 0; }
 
   .model-prompt-area {
     width: 100%;
@@ -475,19 +440,7 @@
     box-shadow: 0 0 0 3px rgba(180,142,247,0.1);
   }
 
-  .model-prompt-box::placeholder { color: var(--muted); }
-
-  .model-generate-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .model-tags {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
+  .model-tags { display: flex; gap: 8px; flex-wrap: wrap; }
 
   .tag {
     font-size: 11px;
@@ -507,33 +460,7 @@
     background: rgba(180,142,247,0.08);
   }
 
-  .model-status {
-    font-size: 12px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-height: 20px;
-  }
-
-  .status-dot-pulse {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--accent2);
-    animation: pulse-dot 1.4s ease-in-out infinite;
-  }
-
-  @keyframes pulse-dot {
-    0%,100% { opacity: 0.3; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.2); }
-  }
-
-  /* ─── CODE PANEL ─── */
-  #panel-code {
-    gap: 0;
-    justify-content: flex-end;
-    overflow: hidden;
-  }
+  #panel-code { gap: 0; justify-content: flex-end; overflow: hidden; }
 
   .chat-messages {
     flex: 1;
@@ -570,15 +497,12 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 11px; font-weight: 600;
     flex-shrink: 0;
-    margin-top: 2px;
   }
 
   .chat-av.ai {
     background: linear-gradient(135deg, #6ee7f722, #b48ef722);
     border: 1px solid rgba(110,231,247,0.3);
     color: var(--accent);
-    font-size: 10px;
-    letter-spacing: 0.05em;
   }
 
   .chat-av.user-av {
@@ -605,75 +529,8 @@
     background: linear-gradient(135deg, rgba(110,231,247,0.15), rgba(180,142,247,0.15));
     border: 1px solid rgba(110,231,247,0.25);
     border-top-right-radius: 4px;
-    color: var(--text);
   }
 
-  .code-block {
-    margin-top: 10px;
-    background: var(--bg);
-    border: 1px solid var(--border2);
-    border-radius: 10px;
-    overflow: hidden;
-  }
-
-  .code-header {
-    padding: 6px 12px;
-    background: rgba(255,255,255,0.03);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 11px;
-    color: var(--muted);
-  }
-
-  .code-copy {
-    font-size: 11px;
-    color: var(--accent);
-    cursor: pointer;
-    background: none;
-    border: none;
-    font-family: var(--font-body);
-    padding: 2px 6px;
-    border-radius: 4px;
-    transition: background 0.2s;
-  }
-
-  .code-copy:hover { background: rgba(110,231,247,0.08); }
-
-  .code-block pre {
-    padding: 12px 14px;
-    font-size: 12px;
-    line-height: 1.7;
-    color: #a8e6cf;
-    font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
-    overflow-x: auto;
-    white-space: pre;
-  }
-
-  .typing-indicator {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-    padding: 12px 14px;
-  }
-
-  .typing-indicator span {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--accent);
-    animation: typingBounce 1.2s ease-in-out infinite;
-  }
-
-  .typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
-  .typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
-
-  @keyframes typingBounce {
-    0%,80%,100% { transform: translateY(0); opacity: 0.4; }
-    40% { transform: translateY(-5px); opacity: 1; }
-  }
-
-  /* ─── CHAT INPUT ─── */
   .chat-input-area {
     width: 100%;
     max-width: 640px;
@@ -689,12 +546,6 @@
     border: 1px solid var(--border2);
     border-radius: 16px;
     padding: 10px 10px 10px 16px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-
-  .chat-input-row:focus-within {
-    border-color: rgba(110,231,247,0.4);
-    box-shadow: 0 0 0 3px rgba(110,231,247,0.07);
   }
 
   #chat-input {
@@ -705,13 +556,10 @@
     font-family: var(--font-body);
     font-size: 14px;
     color: var(--text);
-    line-height: 1.5;
     resize: none;
     max-height: 100px;
     min-height: 22px;
   }
-
-  #chat-input::placeholder { color: var(--muted); }
 
   .send-btn {
     width: 36px; height: 36px;
@@ -720,18 +568,11 @@
     border: none;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
-    box-shadow: 0 0 12px var(--glow);
+    transition: transform 0.15s, box-shadow 0.2s;
   }
-
-  .send-btn:hover { transform: scale(1.06); box-shadow: 0 0 20px var(--glow), 0 0 30px var(--glow2); }
-  .send-btn:active { transform: scale(0.95); }
-  .send-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
 
   .send-btn svg { width: 15px; height: 15px; fill: #04040a; }
 
-  /* ─── NOTIFICATIONS ─── */
   .toast {
     position: fixed;
     bottom: 24px;
@@ -746,20 +587,9 @@
     z-index: 999;
     opacity: 0;
     transition: opacity 0.3s, transform 0.3s;
-    white-space: nowrap;
   }
 
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  /* ─── RESPONSIVE ─── */
-  @media (max-height: 700px) {
-    .auth-card { padding: 28px 28px 24px; }
-    .mode-slider-wrap { margin-top: 12px; }
-    .panel { padding: 10px 16px 14px; }
-  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -767,22 +597,19 @@
 <canvas id="bg-canvas"></canvas>
 <div class="grain"></div>
 
-<!-- LANDING SCREEN -->
 <div class="screen active" id="screen-landing">
-  <div class="sphere-wrap" id="landing-sphere-wrap">
+  <div class="sphere-wrap">
     <canvas id="sphere-canvas" width="320" height="320"></canvas>
   </div>
   <p class="landing-tagline" id="tagline">Create without limits.</p>
   <p class="landing-sub" id="sub">Powered by AI</p>
 </div>
 
-<!-- CTA BUTTONS (outside screens for fixed bottom positioning) -->
 <div class="cta-group" id="cta-group">
   <button class="btn btn-ghost" onclick="showAuth('login')">Log in</button>
   <button class="btn btn-primary" onclick="showAuth('signup')">Create account</button>
 </div>
 
-<!-- AUTH SCREEN -->
 <div class="screen" id="screen-auth">
   <div class="auth-card">
     <div class="auth-logo">NOVA</div>
@@ -810,63 +637,50 @@
   </div>
 </div>
 
-<!-- APP SCREEN -->
 <div class="screen" id="screen-app">
   <div class="app-header">
     <div class="app-logo">NOVA</div>
     <div class="mode-slider-wrap">
-      <div class="mode-slider" id="mode-slider">
+      <div class="mode-slider">
         <div class="mode-slider-track" id="slider-track"></div>
-        <button class="mode-btn active" id="btn-3d" onclick="setMode('3d')">
-          <span class="mode-icon">◈</span> 3D Model
-        </button>
-        <button class="mode-btn" id="btn-code" onclick="setMode('code')">
-          <span class="mode-icon">⌨</span> Generate Code
-        </button>
+        <button class="mode-btn active" id="btn-3d" onclick="setMode('3d')">◈ 3D Model</button>
+        <button class="mode-btn" id="btn-code" onclick="setMode('code')">⌨ Generate Code</button>
       </div>
     </div>
-    <div class="user-badge" id="user-badge">
+    <div class="user-badge">
       <div class="avatar" id="user-avatar">A</div>
       <span id="user-name-label">Alex</span>
     </div>
   </div>
 
   <div class="app-body">
-    <!-- 3D MODEL PANEL -->
     <div class="panel active" id="panel-3d">
       <div class="panel-sphere-wrap">
         <canvas id="app-sphere-canvas" width="220" height="220"></canvas>
       </div>
       <div class="model-prompt-area">
         <div class="model-prompt-label">Describe your 3D model</div>
-        <textarea class="model-prompt-box" id="model-prompt" placeholder="e.g. A sleek futuristic helmet with glowing visor, smooth metallic surface, sci-fi aesthetic…"></textarea>
+        <textarea class="model-prompt-box" placeholder="e.g. A sleek futuristic helmet..."></textarea>
         <div class="model-tags">
-          <button class="tag" onclick="appendTag('low-poly')">low-poly</button>
-          <button class="tag" onclick="appendTag('realistic')">realistic</button>
-          <button class="tag" onclick="appendTag('sci-fi')">sci-fi</button>
-          <button class="tag" onclick="appendTag('organic')">organic</button>
-          <button class="tag" onclick="appendTag('mechanical')">mechanical</button>
-          <button class="tag" onclick="appendTag('abstract')">abstract</button>
+          <button class="tag">sci-fi</button>
+          <button class="tag">abstract</button>
+          <button class="tag">low-poly</button>
         </div>
-        <div class="model-generate-row">
-          <button class="btn btn-primary" style="flex:1;border-radius:12px;padding:13px;" onclick="generateModel()">Generate Model</button>
-        </div>
-        <div class="model-status" id="model-status"></div>
+        <button class="btn btn-primary" style="border-radius:12px;padding:13px;">Generate Model</button>
       </div>
     </div>
 
-    <!-- CODE PANEL -->
     <div class="panel" id="panel-code">
       <div class="chat-messages" id="chat-messages">
         <div class="chat-msg">
           <div class="chat-av ai">AI</div>
-          <div class="chat-bubble">Hello! I'm your code generation assistant. Describe what you want to build and I'll write the code for you.</div>
+          <div class="chat-bubble">Hello! I'm your code generation assistant.</div>
         </div>
       </div>
       <div class="chat-input-area">
         <div class="chat-input-row">
-          <textarea id="chat-input" rows="1" placeholder="e.g. Build a responsive navbar with dark mode toggle…" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
-          <button class="send-btn" id="send-btn" onclick="sendMessage()">
+          <textarea id="chat-input" placeholder="e.g. Build a responsive navbar..." rows="1"></textarea>
+          <button class="send-btn">
             <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           </button>
         </div>
@@ -875,7 +689,6 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
@@ -884,28 +697,17 @@ let currentScreen = 'landing';
 let currentMode = '3d';
 let currentAuthTab = 'login';
 let userName = 'Alex';
-let isGenerating = false;
-let chatHistory = [];
-
-// ─── STATE ───────────────────────────────────────────────────────────
-let currentScreen = 'landing';
-let currentMode = '3d';
-let currentAuthTab = 'login';
-let userName = 'Alex';
-let isGenerating = false;
-let chatHistory = [];
 
 // ─── NEW POINT CLOUD SPHERE RENDERING ────────────────────────────────
 function createSphereRenderer(canvas, size) {
   const ctx = canvas.getContext('2d');
   const cx = size / 2, cy = size / 2;
-  const particleCount = 750; // Количество точек для плотности
+  const particleCount = 750; 
   const particles = [];
   let angleX = 0;
   let angleY = 0;
   let animId;
 
-  // Инициализация точек (равномерное распределение по сфере)
   for (let i = 0; i < particleCount; i++) {
     const phi = Math.acos(-1 + (2 * i) / particleCount);
     const theta = Math.sqrt(particleCount * Math.PI) * phi;
@@ -919,73 +721,46 @@ function createSphereRenderer(canvas, size) {
 
   function draw() {
     ctx.clearRect(0, 0, size, size);
-    
-    // Плавное вращение + легкий дрейф
     angleX += 0.0025;
     angleY += 0.004;
-
     const radius = size * 0.38;
     
-    // Сортировка по Z (глубине), чтобы ближние точки перекрывали дальние
     const sortedParticles = [...particles].sort((a, b) => {
-        // Вычисляем Z после вращения для сортировки
         const zA = a.z * Math.cos(angleX) + (a.y * Math.sin(angleY)) * Math.sin(angleX);
         const zB = b.z * Math.cos(angleX) + (b.y * Math.sin(angleY)) * Math.sin(angleX);
         return zA - zB;
     });
 
     sortedParticles.forEach(p => {
-      // Матрица вращения Y
       let x1 = p.x * Math.cos(angleY) - p.z * Math.sin(angleY);
       let z1 = p.z * Math.cos(angleY) + p.x * Math.sin(angleY);
-      
-      // Матрица вращения X
       let y2 = p.y * Math.cos(angleX) - z1 * Math.sin(angleX);
       let z2 = z1 * Math.cos(angleX) + p.y * Math.sin(angleX);
 
-      // Перспективная проекция (эффект 3D)
       const perspective = 1.5;
       const scale = perspective / (perspective - z2); 
       const screenX = cx + x1 * radius * scale;
       const screenY = cy + y2 * radius * scale;
-      
-      // Размер точки зависит от близости (Z)
       const pointSize = p.baseSize * scale;
-      
-      // Цвет: перелив между вашими цветами Create Account
-      // #6ee7f7 (cyan) и #b48ef7 (purple)
-      const ratio = (z2 + 1) / 2; // нормализация Z от 0 до 1
       
       ctx.beginPath();
       ctx.arc(screenX, screenY, pointSize, 0, Math.PI * 2);
       
-      // Смешиваем цвета визуально через прозрачность и условия
-      if (z2 > 0.2) {
-          ctx.fillStyle = '#6ee7f7'; // Ближние — голубые
-      } else if (z2 < -0.2) {
-          ctx.fillStyle = '#b48ef7'; // Дальние — фиолетовые
-      } else {
-          ctx.fillStyle = '#8fbaf7'; // Средние — микс
-      }
+      if (z2 > 0.2) ctx.fillStyle = '#6ee7f7';
+      else if (z2 < -0.2) ctx.fillStyle = '#b48ef7';
+      else ctx.fillStyle = '#8fbaf7';
       
-      // Затухание для дальних точек
       ctx.globalAlpha = Math.max(0.1, (z2 + 1.5) / 2.5);
       ctx.fill();
     });
-
     animId = requestAnimationFrame(draw);
   }
 
-  return { 
-    start: () => { animId = requestAnimationFrame(draw); }, 
-    stop: () => { cancelAnimationFrame(animId); } 
-  };
+  return { start: () => animId = requestAnimationFrame(draw), stop: () => cancelAnimationFrame(animId) };
 }
 
-// Init spheres
 const landingSphere = createSphereRenderer(document.getElementById('sphere-canvas'), 320);
 landingSphere.start();
-
 let appSphere = null;
 
 // ─── PARTICLE BACKGROUND ──────────────────────────────────────────────
@@ -993,504 +768,94 @@ let appSphere = null;
   const canvas = document.getElementById('bg-canvas');
   const ctx = canvas.getContext('2d');
   let W, H, particles = [];
-
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
   window.addEventListener('resize', resize);
   resize();
 
   for (let i = 0; i < 60; i++) {
     particles.push({
-      x: Math.random() * 1000,
-      y: Math.random() * 1000,
-      r: Math.random() * 1.5 + 0.3,
-      vx: (Math.random() - 0.5) * 0.15,
-      vy: (Math.random() - 0.5) * 0.15,
-      opacity: Math.random() * 0.4 + 0.1,
+      x: Math.random() * 1000, y: Math.random() * 1000, r: Math.random() * 1.5 + 0.3,
+      vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.15, opacity: Math.random() * 0.4 + 0.1,
     });
   }
 
   function drawBg() {
     ctx.clearRect(0, 0, W, H);
     particles.forEach(p => {
-      p.x = (p.x + p.vx + W) % W;
-      p.y = (p.y + p.vy + H) % H;
-      ctx.beginPath();
-      ctx.arc(p.x / 1000 * W, p.y / 1000 * H, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(110,231,247,${p.opacity})`;
-      ctx.fill();
+      p.x = (p.x + p.vx + W) % W; p.y = (p.y + p.vy + H) % H;
+      ctx.beginPath(); ctx.arc(p.x / 1000 * W, p.y / 1000 * H, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(110,231,247,${p.opacity})`; ctx.fill();
     });
     requestAnimationFrame(drawBg);
   }
   drawBg();
 })();
 
-// ─── LANDING ANIMATION ────────────────────────────────────────────────
 window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('tagline').classList.add('visible');
-    document.getElementById('sub').classList.add('visible');
-  }, 400);
-  setTimeout(() => {
-    document.getElementById('cta-group').classList.add('visible');
-  }, 1000); // Ускорил появление кнопок
+  setTimeout(() => { document.getElementById('tagline').classList.add('visible'); document.getElementById('sub').classList.add('visible'); }, 400);
+  setTimeout(() => { document.getElementById('cta-group').classList.add('visible'); }, 1000);
 });
 
-// ─── SCREEN TRANSITIONS ───────────────────────────────────────────────
-function showAuth(mode) {
-  document.getElementById('cta-group').style.display = 'none';
-  switchAuthTab(mode);
-  transitionTo('auth');
-}
-
-function backToLanding() {
-  document.getElementById('cta-group').style.display = 'flex';
-  document.getElementById('cta-group').style.opacity = '1';
-  document.getElementById('cta-group').style.transform = 'translateY(0)';
-  transitionTo('landing');
-}
+function showAuth(mode) { document.getElementById('cta-group').style.display = 'none'; switchAuthTab(mode); transitionTo('auth'); }
+function backToLanding() { document.getElementById('cta-group').style.display = 'flex'; transitionTo('landing'); }
 
 function transitionTo(target) {
   const screens = { landing: 'screen-landing', auth: 'screen-auth', app: 'screen-app' };
   const current = document.querySelector('.screen.active');
-  if (current) {
-    current.classList.add('exit');
-    setTimeout(() => { current.classList.remove('active', 'exit'); }, 700);
-  }
+  if (current) { current.classList.add('exit'); setTimeout(() => { current.classList.remove('active', 'exit'); }, 700); }
   setTimeout(() => {
-    const next = document.getElementById(screens[target]);
-    next.classList.add('active');
+    document.getElementById(screens[target]).classList.add('active');
     currentScreen = target;
-
-    if (target === 'app' && !appSphere) {
-      appSphere = createSphereRenderer(document.getElementById('app-sphere-canvas'), 220);
-      appSphere.start();
-    }
+    if (target === 'app' && !appSphere) { appSphere = createSphereRenderer(document.getElementById('app-sphere-canvas'), 220); appSphere.start(); }
   }, 350);
 }
 
-// ─── AUTH ─────────────────────────────────────────────────────────────
 function switchAuthTab(tab) {
   currentAuthTab = tab;
   document.getElementById('tab-login').classList.toggle('active', tab === 'login');
   document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
   document.getElementById('auth-mode-label').textContent = tab === 'login' ? 'Welcome back' : 'Create your account';
   document.getElementById('field-name').style.display = tab === 'signup' ? 'block' : 'none';
-  document.getElementById('auth-submit-btn').textContent = tab === 'login' ? 'Log in' : 'Create account';
 }
 
 function handleAuth() {
-  const email = document.getElementById('auth-email').value.trim();
-  const pass = document.getElementById('auth-password').value;
-  if (!email || !pass) { showToast('Please fill in all fields.'); return; }
-
-  if (currentAuthTab === 'signup') {
-    const name = document.getElementById('auth-name').value.trim() || email.split('@')[0];
-    userName = name;
-  } else {
-    userName = email.split('@')[0];
-  }
-
-  const initial = userName.charAt(0).toUpperCase();
-  document.getElementById('user-avatar').textContent = initial;
+  const email = document.getElementById('auth-email').value;
+  if (!email) { showToast('Please enter your email.'); return; }
+  userName = document.getElementById('auth-name').value || email.split('@')[0];
+  document.getElementById('user-avatar').textContent = userName.charAt(0).toUpperCase();
   document.getElementById('user-name-label').textContent = userName;
-
-  document.getElementById('cta-group').style.display = 'none';
   transitionTo('app');
 }
 
-// ─── MODE SLIDER ──────────────────────────────────────────────────────
 function setMode(mode) {
   if (mode === currentMode) return;
   currentMode = mode;
-
+  const track = document.getElementById('slider-track');
   const btn3d = document.getElementById('btn-3d');
   const btnCode = document.getElementById('btn-code');
-  const track = document.getElementById('slider-track');
-  const panel3d = document.getElementById('panel-3d');
-  const panelCode = document.getElementById('panel-code');
-
+  
   if (mode === 'code') {
-    btn3d.classList.remove('active');
-    btnCode.classList.add('active');
     track.style.transform = `translateX(${btn3d.offsetWidth}px)`;
     track.style.width = btnCode.offsetWidth + 'px';
-
-    panel3d.classList.add('exit-left');
-    panel3d.classList.remove('active');
-    setTimeout(() => { panel3d.classList.remove('exit-left'); }, 400);
-    setTimeout(() => { panelCode.classList.add('active'); }, 50);
+    document.getElementById('panel-3d').classList.remove('active');
+    document.getElementById('panel-code').classList.add('active');
   } else {
-    btnCode.classList.remove('active');
-    btn3d.classList.add('active');
     track.style.transform = 'translateX(0)';
     track.style.width = btn3d.offsetWidth + 'px';
-
-    panelCode.classList.add('exit-left');
-    panelCode.classList.remove('active');
-    setTimeout(() => { panelCode.classList.remove('exit-left'); }, 400);
-    setTimeout(() => { panel3d.classList.add('active'); }, 50);
+    document.getElementById('panel-code').classList.remove('active');
+    document.getElementById('panel-3d').classList.add('active');
   }
 }
 
-// Init slider track width
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const btn3d = document.getElementById('btn-3d');
-    const track = document.getElementById('slider-track');
-    if (btn3d && track) {
-      track.style.width = btn3d.offsetWidth + 'px';
-    }
-  }, 100);
-});
-
-// Доп. функции для работы интерфейса
-function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-}
-// ─── PARTICLE BACKGROUND ──────────────────────────────────────────────
-(function() {
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
-
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-
-  for (let i = 0; i < 60; i++) {
-    particles.push({
-      x: Math.random() * 1000,
-      y: Math.random() * 1000,
-      r: Math.random() * 1.5 + 0.3,
-      vx: (Math.random() - 0.5) * 0.15,
-      vy: (Math.random() - 0.5) * 0.15,
-      opacity: Math.random() * 0.4 + 0.1,
-    });
-  }
-
-  function drawBg() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(p => {
-      p.x = (p.x + p.vx + W) % W;
-      p.y = (p.y + p.vy + H) % H;
-      ctx.beginPath();
-      ctx.arc(p.x / 1000 * W, p.y / 1000 * H, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(110,231,247,${p.opacity})`;
-      ctx.fill();
-    });
-    requestAnimationFrame(drawBg);
-  }
-  drawBg();
-})();
-
-// ─── LANDING ANIMATION ────────────────────────────────────────────────
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('tagline').classList.add('visible');
-    document.getElementById('sub').classList.add('visible');
-  }, 400);
-  setTimeout(() => {
-    document.getElementById('cta-group').classList.add('visible');
-  }, 3000);
-});
-
-// ─── SCREEN TRANSITIONS ───────────────────────────────────────────────
-function showAuth(mode) {
-  document.getElementById('cta-group').style.display = 'none';
-  switchAuthTab(mode);
-  transitionTo('auth');
-}
-
-function backToLanding() {
-  document.getElementById('cta-group').style.display = 'flex';
-  document.getElementById('cta-group').style.opacity = '1';
-  document.getElementById('cta-group').style.transform = 'translateY(0)';
-  transitionTo('landing');
-}
-
-function transitionTo(target) {
-  const screens = { landing: 'screen-landing', auth: 'screen-auth', app: 'screen-app' };
-  const current = document.querySelector('.screen.active');
-  if (current) {
-    current.classList.add('exit');
-    setTimeout(() => { current.classList.remove('active', 'exit'); }, 700);
-  }
-  setTimeout(() => {
-    const next = document.getElementById(screens[target]);
-    next.classList.add('active');
-    currentScreen = target;
-
-    if (target === 'app' && !appSphere) {
-      appSphere = createSphereRenderer(document.getElementById('app-sphere-canvas'), 220);
-      appSphere.start();
-    }
-  }, 350);
-}
-
-// ─── AUTH ─────────────────────────────────────────────────────────────
-function switchAuthTab(tab) {
-  currentAuthTab = tab;
-  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
-  document.getElementById('auth-mode-label').textContent = tab === 'login' ? 'Welcome back' : 'Create your account';
-  document.getElementById('field-name').style.display = tab === 'signup' ? 'block' : 'none';
-  document.getElementById('auth-submit-btn').textContent = tab === 'login' ? 'Log in' : 'Create account';
-}
-
-function handleAuth() {
-  const email = document.getElementById('auth-email').value.trim();
-  const pass = document.getElementById('auth-password').value;
-  if (!email || !pass) { showToast('Please fill in all fields.'); return; }
-
-  if (currentAuthTab === 'signup') {
-    const name = document.getElementById('auth-name').value.trim() || email.split('@')[0];
-    userName = name;
-  } else {
-    userName = email.split('@')[0];
-  }
-
-  const initial = userName.charAt(0).toUpperCase();
-  document.getElementById('user-avatar').textContent = initial;
-  document.getElementById('user-name-label').textContent = userName;
-
-  document.getElementById('cta-group').style.display = 'none';
-  transitionTo('app');
-}
-
-// ─── MODE SLIDER ──────────────────────────────────────────────────────
-function setMode(mode) {
-  if (mode === currentMode) return;
-  currentMode = mode;
-
-  const btn3d = document.getElementById('btn-3d');
-  const btnCode = document.getElementById('btn-code');
-  const track = document.getElementById('slider-track');
-  const panel3d = document.getElementById('panel-3d');
-  const panelCode = document.getElementById('panel-code');
-
-  if (mode === 'code') {
-    btn3d.classList.remove('active');
-    btnCode.classList.add('active');
-    track.style.transform = `translateX(${btn3d.offsetWidth}px)`;
-    track.style.width = btnCode.offsetWidth + 'px';
-
-    panel3d.classList.add('exit-left');
-    panel3d.classList.remove('active');
-    setTimeout(() => { panel3d.classList.remove('exit-left'); }, 400);
-    setTimeout(() => { panelCode.classList.add('active'); }, 50);
-  } else {
-    btnCode.classList.remove('active');
-    btn3d.classList.add('active');
-    track.style.transform = 'translateX(0)';
-    track.style.width = btn3d.offsetWidth + 'px';
-
-    panelCode.classList.add('exit-left');
-    panelCode.classList.remove('active');
-    setTimeout(() => { panelCode.classList.remove('exit-left'); }, 400);
-    setTimeout(() => { panel3d.classList.add('active'); }, 50);
-  }
-}
-
-// Init slider track width
-window.addEventListener('load', () => {
-  setTimeout(() => {
-    const btn3d = document.getElementById('btn-3d');
-    const track = document.getElementById('slider-track');
-    if (btn3d && track) {
-      track.style.width = btn3d.offsetWidth + 'px';
-    }
-  }, 100);
-});
-
-// ─── 3D MODEL GENERATION ──────────────────────────────────────────────
-const modelStatuses = [
-  'Initializing geometry engine…',
-  'Parsing mesh topology…',
-  'Generating vertex data…',
-  'Applying surface materials…',
-  'Rendering UV maps…',
-  'Finalizing normals…',
-  'Model ready for export ✓'
-];
-
-function appendTag(tag) {
-  const ta = document.getElementById('model-prompt');
-  const val = ta.value.trim();
-  ta.value = val ? val + ', ' + tag : tag;
-  ta.focus();
-}
-
-function generateModel() {
-  const prompt = document.getElementById('model-prompt').value.trim();
-  if (!prompt) { showToast('Please describe your model first.'); return; }
-
-  const statusEl = document.getElementById('model-status');
-  let step = 0;
-
-  function nextStep() {
-    if (step >= modelStatuses.length) return;
-    statusEl.innerHTML = `<div class="status-dot-pulse"></div>${modelStatuses[step]}`;
-    step++;
-    if (step < modelStatuses.length) {
-      setTimeout(nextStep, 600 + Math.random() * 500);
-    }
-  }
-  nextStep();
-}
-
-// ─── CODE CHAT ────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `You are an expert code generation assistant. When a user describes what they want to build, you write clean, production-ready code. Always include a brief explanation, then provide the code in a code block. Keep responses focused and practical. Use modern best practices.`;
-
-async function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
-  if (!text || isGenerating) return;
-
-  input.value = '';
-  input.style.height = 'auto';
-
-  addChatMessage(text, 'user');
-  chatHistory.push({ role: 'user', content: text });
-
-  isGenerating = true;
-  document.getElementById('send-btn').disabled = true;
-
-  const typingEl = addTypingIndicator();
-  const msgs = document.getElementById('chat-messages');
-  msgs.scrollTop = msgs.scrollHeight;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages: chatHistory
-      })
-    });
-
-    const data = await response.json();
-    typingEl.remove();
-
-    const reply = data.content?.map(b => b.text || '').join('') || 'Sorry, I could not generate a response.';
-    chatHistory.push({ role: 'assistant', content: reply });
-    addChatMessage(reply, 'ai');
-  } catch (err) {
-    typingEl.remove();
-    addChatMessage('Sorry, there was an error connecting to the AI. Please try again.', 'ai');
-  }
-
-  isGenerating = false;
-  document.getElementById('send-btn').disabled = false;
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function addChatMessage(text, role) {
-  const msgs = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = `chat-msg ${role === 'user' ? 'user' : ''}`;
-
-  const avContent = role === 'user' ? userName.charAt(0).toUpperCase() : 'AI';
-  const avClass = role === 'user' ? 'user-av' : 'ai';
-
-  // Parse code blocks from AI messages
-  let bubbleContent = '';
-  if (role === 'ai') {
-    bubbleContent = parseCodeBlocks(text);
-  } else {
-    bubbleContent = escapeHtml(text);
-  }
-
-  div.innerHTML = `
-    <div class="chat-av ${avClass}">${avContent}</div>
-    <div class="chat-bubble">${bubbleContent}</div>
-  `;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function parseCodeBlocks(text) {
-  let html = '';
-  const parts = text.split(/(```[\s\S]*?```)/g);
-  parts.forEach(part => {
-    if (part.startsWith('```')) {
-      const lines = part.slice(3).replace(/```$/, '').split('\n');
-      const lang = lines[0].trim() || 'code';
-      const code = lines.slice(1).join('\n').trim();
-      const id = 'code-' + Math.random().toString(36).slice(2);
-      html += `
-        <div class="code-block">
-          <div class="code-header">
-            <span>${lang}</span>
-            <button class="code-copy" onclick="copyCode('${id}')">Copy</button>
-          </div>
-          <pre id="${id}">${escapeHtml(code)}</pre>
-        </div>`;
-    } else if (part.trim()) {
-      html += `<p style="margin-bottom:8px;last-child{margin-bottom:0}">${escapeHtml(part.trim()).replace(/\n/g,'<br>')}</p>`;
-    }
-  });
-  return html;
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function copyCode(id) {
-  const pre = document.getElementById(id);
-  if (!pre) return;
-  const text = pre.textContent;
-  navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!')).catch(() => showToast('Copy failed.'));
-}
-
-function addTypingIndicator() {
-  const msgs = document.getElementById('chat-messages');
-  const div = document.createElement('div');
-  div.className = 'chat-msg';
-  div.innerHTML = `
-    <div class="chat-av ai">AI</div>
-    <div class="chat-bubble">
-      <div class="typing-indicator">
-        <span></span><span></span><span></span>
-      </div>
-    </div>`;
-  msgs.appendChild(div);
-  return div;
-}
-
-function handleChatKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
-}
-
-// ─── TOAST ────────────────────────────────────────────────────────────
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
 }
+
+window.addEventListener('load', () => {
+  setTimeout(() => { document.getElementById('slider-track').style.width = document.getElementById('btn-3d').offsetWidth + 'px'; }, 100);
+});
 </script>
 </body>
 </html>
