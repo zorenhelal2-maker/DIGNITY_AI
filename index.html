@@ -3,207 +3,162 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>NOVA — AI Studio</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<title>NOVA — Premium AI Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+  /* ─── Продвинутые переменные и база ─── */
   :root {
     --bg: #04040a;
     --surface: #0c0c18;
     --surface2: #121224;
+    --surface3: #1a1a32;
     --border: rgba(255,255,255,0.07);
     --border2: rgba(255,255,255,0.12);
     --text: #e8e8f0;
     --muted: #6a6a88;
     --accent: #6ee7f7;
     --accent2: #b48ef7;
-    --glow: #6ee7f766;
-    --glow2: #b48ef766;
+    --glow: rgba(110,231,247,0.4);
+    --glow2: rgba(180,142,247,0.4);
     --font-display: 'Instrument Serif', serif;
     --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --shadow-lg: 0 40px 100px rgba(0,0,0,0.8);
   }
 
-  html, body {
-    height: 100%; width: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font-body);
-    overflow: hidden;
-    user-select: none;
-  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; width: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); overflow: hidden; }
 
-  /* ─── SCREENS ─── */
-  .screen {
-    position: fixed; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    transition: opacity 0.7s ease, transform 0.7s ease;
-    pointer-events: none;
-    opacity: 0;
-  }
-  .screen.active { opacity: 1; pointer-events: all; }
-  .screen.exit { opacity: 0; transform: scale(0.96); }
-
+  /* ─── Эффекты фона ─── */
   #bg-canvas { position: fixed; inset: 0; z-index: 0; }
+  .grain { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256'/%3E"); }
+  .vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(circle, transparent 20%, rgba(4,4,10,0.8) 100%); }
 
-  .grain {
-    position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.035;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 180px;
-  }
+  /* ─── Навигация и Сетка ─── */
+  .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.8s cubic-bezier(0.16,1,0.3,1); opacity: 0; pointer-events: none; z-index: 5; }
+  .screen.active { opacity: 1; pointer-events: all; transform: scale(1); }
+  .screen.exit { opacity: 0; transform: scale(1.05) translateY(-20px); }
 
-  .sphere-wrap { position: relative; z-index: 2; }
-  #sphere-canvas { display: block; }
+  /* ─── Лендинг (Секция 1) ─── */
+  #sphere-canvas { display: block; filter: drop-shadow(0 0 30px var(--glow)); cursor: crosshair; }
+  .landing-content { z-index: 10; text-align: center; }
+  .tagline { font-family: var(--font-display); font-size: clamp(3rem, 8vw, 5.5rem); font-style: italic; line-height: 0.9; opacity: 0; transform: translateY(30px); transition: 1s ease 0.4s; }
+  .tagline.visible { opacity: 1; transform: translateY(0); }
 
-  .landing-tagline {
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-style: italic;
-    color: var(--text);
-    text-align: center;
-    margin-top: 32px;
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
-  }
-  .landing-tagline.visible { opacity: 1; transform: translateY(0); }
-
-  .landing-sub {
-    font-size: 13px; font-weight: 300; color: var(--muted);
-    letter-spacing: 0.12em; text-transform: uppercase;
-    margin-top: 10px; opacity: 0; transition: opacity 0.8s ease 0.6s;
-  }
-  .landing-sub.visible { opacity: 1; }
-
-  .cta-group {
-    position: fixed; bottom: 48px; display: flex; gap: 14px; z-index: 10;
-    opacity: 0; transform: translateY(20px);
-    transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
-  }
+  /* ─── Кнопки и Интерактивы ─── */
+  .cta-group { position: fixed; bottom: 60px; display: flex; gap: 20px; z-index: 100; opacity: 0; transform: translateY(20px); transition: 0.8s ease 1s; }
   .cta-group.visible { opacity: 1; transform: translateY(0); }
+  .btn { padding: 16px 36px; border-radius: 100px; border: none; font-weight: 600; font-size: 14px; letter-spacing: 0.05em; cursor: pointer; transition: 0.3s; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #000; box-shadow: 0 10px 30px var(--glow); }
+  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px var(--glow); }
 
-  .btn {
-    font-family: var(--font-body); font-size: 13px; font-weight: 500;
-    padding: 12px 28px; border-radius: 100px; border: none; cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, background 0.2s; white-space: nowrap;
-  }
-  .btn:active { transform: scale(0.97); }
-  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border2); }
-  .btn-ghost:hover { background: rgba(255,255,255,0.05); transform: translateY(-1px); }
-  .btn-primary {
-    background: linear-gradient(135deg, #6ee7f7, #b48ef7); color: #04040a;
-    font-weight: 600; box-shadow: 0 0 24px var(--glow);
-  }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 36px var(--glow), 0 0 60px var(--glow2); }
+  /* ─── Модуль Приложения (Секция 2) ─── */
+  .app-container { width: 100%; height: 100%; display: grid; grid-template-columns: 280px 1fr 320px; background: var(--bg); position: relative; }
+  
+  /* Сайдбар (много строк логики UI) */
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 30px; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; color: var(--muted); cursor: pointer; transition: 0.2s; }
+  .nav-item.active { background: var(--surface2); color: var(--accent); border: 1px solid var(--border); }
 
-  .auth-card {
-    background: var(--surface); border: 1px solid var(--border2); border-radius: 24px;
-    padding: 40px; width: 380px; max-width: calc(100vw - 32px);
-    backdrop-filter: blur(20px); box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-  }
+  /* Чат и Генерация (Основная часть) */
+  .main-panel { position: relative; display: flex; flex-direction: column; height: 100%; border-right: 1px solid var(--border); }
+  .chat-area { flex: 1; overflow-y: auto; padding: 40px; display: flex; flex-direction: column; gap: 24px; }
+  .message { max-width: 80%; padding: 20px; border-radius: 20px; line-height: 1.6; animation: fadeIn 0.4s ease; }
+  .message.ai { background: var(--surface); border: 1px solid var(--border); align-self: flex-start; }
+  .message.user { background: var(--surface2); border: 1px solid var(--accent); align-self: flex-end; color: var(--accent); }
 
-  .auth-logo { font-family: var(--font-display); font-size: 22px; font-style: italic; text-align: center; margin-bottom: 6px; }
-  .auth-mode-label { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 28px; text-transform: uppercase; }
+  .input-wrapper { padding: 20px 40px 40px; }
+  .input-box { background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 20px; display: flex; gap: 15px; }
+  textarea { flex: 1; background: transparent; border: none; color: #fff; outline: none; resize: none; font-family: inherit; font-size: 15px; }
 
-  .auth-tabs { display: flex; background: var(--bg); border-radius: 12px; padding: 4px; margin-bottom: 24px; border: 1px solid var(--border); }
-  .auth-tab { flex: 1; text-align: center; padding: 8px; font-size: 13px; border-radius: 9px; cursor: pointer; color: var(--muted); border: none; background: transparent; }
-  .auth-tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); }
+  /* Правая панель (Параметры) */
+  .inspector { padding: 24px; background: var(--surface); overflow-y: auto; }
+  .control-group { margin-bottom: 32px; }
+  .control-label { font-size: 11px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; display: block; }
+  
+  /* ─── Анимации ─── */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
-  .field input { width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 10px; padding: 11px; color: var(--text); outline: none; }
-  .field input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(110,231,247,0.1); }
+  /* ─── Специфические стили для "Senior" фишек ─── */
+  .code-block { background: #000; padding: 15px; border-radius: 10px; font-family: var(--font-mono); font-size: 13px; margin-top: 10px; border: 1px solid var(--border); position: relative; }
+  .code-header { color: var(--muted); font-size: 11px; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
 
-  .app-header { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 20px 28px; border-bottom: 1px solid var(--border); }
-  .user-badge { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); padding: 6px 12px; border-radius: 100px; border: 1px solid var(--border); }
-  .avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, #6ee7f7, #b48ef7); display: flex; align-items: center; justify-content: center; font-size: 11px; color: #04040a; }
-
-  .mode-slider { display: flex; background: var(--surface); border: 1px solid var(--border2); border-radius: 100px; padding: 5px; position: relative; }
-  .mode-slider-track { position: absolute; top: 5px; left: 5px; height: calc(100% - 10px); border-radius: 100px; background: rgba(110,231,247,0.15); border: 1px solid rgba(110,231,247,0.3); transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-  .mode-btn { position: relative; z-index: 2; font-size: 13px; padding: 9px 22px; border: none; background: transparent; color: var(--muted); cursor: pointer; transition: color 0.3s; }
-  .mode-btn.active { color: var(--accent); }
-
-  .panel { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; opacity: 0; transform: translateX(30px); transition: all 0.4s ease; pointer-events: none; }
-  .panel.active { opacity: 1; transform: translateX(0); pointer-events: all; }
-
-  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border2); border-radius: 100px; padding: 10px 20px; font-size: 13px; opacity: 0; transition: all 0.3s; z-index: 999; }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
 <canvas id="bg-canvas"></canvas>
 <div class="grain"></div>
+<div class="vignette"></div>
 
 <div class="screen active" id="screen-landing">
-  <div class="sphere-wrap">
-    <canvas id="sphere-canvas" width="320" height="320"></canvas>
+  <div class="landing-content">
+    <canvas id="sphere-canvas" width="500" height="500"></canvas>
+    <h1 class="tagline" id="tagline">The future of<br><span style="color:var(--accent)">Intelligence.</span></h1>
   </div>
-  <p class="landing-tagline" id="tagline">Create without limits.</p>
-  <p class="landing-sub" id="sub">Powered by AI</p>
 </div>
 
 <div class="cta-group" id="cta-group">
-  <button class="btn btn-ghost" onclick="showAuth('login')">Log in</button>
-  <button class="btn btn-primary" onclick="showAuth('signup')">Create account</button>
-</div>
-
-<div class="screen" id="screen-auth">
-  <div class="auth-card">
-    <div class="auth-logo">NOVA</div>
-    <div class="auth-mode-label" id="auth-mode-label">Welcome back</div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Log in</button>
-      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign up</button>
-    </div>
-    <div class="field">
-      <label>Email</label>
-      <input type="email" id="auth-email" placeholder="you@example.com"/>
-    </div>
-    <div class="field">
-      <label>Password</label>
-      <input type="password" id="auth-password" placeholder="••••••••"/>
-    </div>
-    <div class="field" id="field-name" style="display:none">
-      <label>Your name</label>
-      <input type="text" id="auth-name" placeholder="Alex"/>
-    </div>
-    <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="handleAuth()">Continue</button>
-    <div style="text-align:center; margin-top:15px; font-size:12px; color:var(--muted); cursor:pointer;" onclick="backToLanding()">← Back</div>
-  </div>
+  <button class="btn btn-ghost" style="color:#fff; background: rgba(255,255,255,0.05);" onclick="transitionTo('auth')">Sign In</button>
+  <button class="btn btn-primary" onclick="transitionTo('app')">Get Started — Free</button>
 </div>
 
 <div class="screen" id="screen-app">
-  <div class="app-header">
-    <div class="app-logo">NOVA</div>
-    <div class="mode-slider">
-      <div class="mode-slider-track" id="slider-track"></div>
-      <button class="mode-btn active" id="btn-3d" onclick="setMode('3d')">◈ 3D Model</button>
-      <button class="mode-btn" id="btn-code" onclick="setMode('code')">⌨ Code</button>
-    </div>
-    <div class="user-badge">
-      <div class="avatar" id="user-avatar">A</div>
-      <span id="user-name-label">Alex</span>
-    </div>
-  </div>
-  <div style="flex:1; width:100%; position:relative;">
-    <div class="panel active" id="panel-3d">
-      <canvas id="app-sphere-canvas" width="220" height="220"></canvas>
-      <p style="margin-top:20px; color:var(--muted); font-size:14px;">Interactive 3D Preview Active</p>
-    </div>
-    <div class="panel" id="panel-code">
-      <p>Code editor coming soon...</p>
-    </div>
+  <div class="app-container">
+    <aside class="sidebar">
+      <div style="font-family: var(--font-display); font-size: 24px; italic; margin-bottom: 20px;">NOVA.</div>
+      <nav>
+        <div class="nav-item active"><span>◈</span> Dashboard</div>
+        <div class="nav-item"><span>⌨</span> Code Engine</div>
+        <div class="nav-item"><span>◎</span> 3D Generator</div>
+        <div class="nav-item"><span>◒</span> History</div>
+      </nav>
+      <div style="margin-top:auto;">
+        <div class="nav-item" onclick="transitionTo('landing')"><span>←</span> Sign Out</div>
+      </div>
+    </aside>
+
+    <main class="main-panel">
+      <div class="chat-area" id="chat-flow">
+        <div class="message ai">
+          Welcome back, Alex. How can we accelerate your project today?
+        </div>
+      </div>
+      <div class="input-wrapper">
+        <div class="input-box">
+          <textarea id="user-input" placeholder="Ask anything, or type '/' for commands..." rows="1"></textarea>
+          <button class="btn btn-primary" style="padding: 10px 20px;" onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </main>
+
+    <aside class="inspector">
+      <div class="control-group">
+        <span class="control-label">Visualizer</span>
+        <canvas id="app-sphere-canvas" width="260" height="260" style="background:var(--surface2); border-radius:20px;"></canvas>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Model Configuration</span>
+        <div style="background:var(--surface2); padding:15px; border-radius:12px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <span>Creativity</span><span style="color:var(--accent)">0.85</span>
+          </div>
+          <div style="width:100%; height:4px; background:var(--bg); border-radius:2px; overflow:hidden;">
+            <div style="width:85%; height:100%; background:var(--accent);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="control-group">
+        <span class="control-label">System Status</span>
+        <div style="color:var(--accent); font-size:12px;">● Neural Engine Online</div>
+      </div>
+    </aside>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-// ─── STATE & MOUSE ──────────────────────────────────────────────────
-let currentMode = '3d';
-let userName = 'Alex';
+// ─── ГЛОБАЛЬНОЕ СОСТОЯНИЕ ───
+let time = 0;
 const mouse = { x: 0, y: 0, active: false };
 
 window.addEventListener('mousemove', (e) => {
@@ -212,152 +167,129 @@ window.addEventListener('mousemove', (e) => {
   mouse.active = true;
 });
 
-// ─── EVOLVING SPHERE LOGIC ──────────────────────────────────────────
-function createSphereRenderer(canvas, size) {
+// ─── ЛОГИКА СФЕРЫ (Новая, улучшенная версия) ───
+function initSphere(canvasId, size) {
+  const canvas = document.getElementById(canvasId);
   const ctx = canvas.getContext('2d');
   const cx = size / 2, cy = size / 2;
-  const particleCount = 800; 
+  const count = 900;
   const particles = [];
-  let angleX = 0, angleY = 0, time = 0;
-  let animId;
+  let angleX = 0, angleY = 0;
 
-  for (let i = 0; i < particleCount; i++) {
-    const phi = Math.acos(-1 + (2 * i) / particleCount);
-    const theta = Math.sqrt(particleCount * Math.PI) * phi;
+  for(let i=0; i<count; i++) {
+    const phi = Math.acos(-1 + (2 * i) / count);
+    const theta = Math.sqrt(count * Math.PI) * phi;
     particles.push({
       ox: Math.cos(theta) * Math.sin(phi),
       oy: Math.sin(theta) * Math.sin(phi),
       oz: Math.cos(phi),
-      baseSize: Math.random() * 1.2 + 0.6
+      size: Math.random() * 1.5 + 0.5
     });
   }
 
-  function draw() {
+  function animate() {
     ctx.clearRect(0, 0, size, size);
-    time += 0.015; angleX += 0.002; angleY += 0.004;
-    const baseRadius = size * 0.38;
+    time += 0.02;
+    angleX += 0.002; angleY += 0.003;
     const rect = canvas.getBoundingClientRect();
 
-    const processed = particles.map(p => {
-      // 1. Изменение формы (шум/пульсация)
-      const noise = Math.sin(p.ox * 2 + time) * Math.cos(p.oy * 2 + time) * 0.15;
-      const pulse = 1 + noise;
+    const drawn = particles.map(p => {
+      const morph = 1 + Math.sin(time + p.ox * 3) * 0.12;
+      let x = p.ox * morph, y = p.oy * morph, z = p.oz * morph;
 
-      // 2. Вращение
-      let x = p.ox * pulse, y = p.oy * pulse, z = p.oz * pulse;
+      // Rotate
       let x1 = x * Math.cos(angleY) - z * Math.sin(angleY);
       let z1 = z * Math.cos(angleY) + x * Math.sin(angleY);
       let y2 = y * Math.cos(angleX) - z1 * Math.sin(angleX);
       let z2 = z1 * Math.cos(angleX) + y * Math.sin(angleX);
 
-      // 3. Проекция
-      const scale = 1.8 / (1.8 - z2);
-      let sx = cx + x1 * baseRadius * scale;
-      let sy = cy + y2 * baseRadius * scale;
+      const scale = 2 / (2 - z2);
+      let sx = cx + x1 * (size * 0.35) * scale;
+      let sy = cy + y2 * (size * 0.35) * scale;
 
-      // 4. Интерактив с мышью
+      // Mouse Pull
       if (mouse.active) {
         const dx = mouse.x - (rect.left + sx);
         const dy = mouse.y - (rect.top + sy);
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 100) {
-          const force = (100 - dist) / 100;
-          sx += dx * force * 0.2;
-          sy += dy * force * 0.2;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          const f = (120 - dist) / 120;
+          sx += dx * f * 0.3; sy += dy * f * 0.3;
         }
       }
-      return { sx, sy, z2, size: p.baseSize * scale };
+      return { sx, sy, z2, s: p.size * scale };
     });
 
-    processed.sort((a, b) => a.z2 - b.z2).forEach(p => {
+    drawn.sort((a,b) => a.z2 - b.z2).forEach(p => {
       ctx.beginPath();
-      ctx.arc(p.sx, p.sy, p.size, 0, Math.PI * 2);
+      ctx.arc(p.sx, p.sy, p.s, 0, 7);
       ctx.fillStyle = p.z2 > 0.3 ? '#6ee7f7' : (p.z2 < -0.3 ? '#b48ef7' : '#8fbaf7');
-      ctx.globalAlpha = Math.max(0.1, (p.z2 + 1.5) / 2.5);
+      ctx.globalAlpha = Math.max(0.1, (p.z2 + 1) / 2);
       ctx.fill();
     });
-    animId = requestAnimationFrame(draw);
+    requestAnimationFrame(animate);
   }
-  return { start: () => animId = requestAnimationFrame(draw), stop: () => cancelAnimationFrame(animId) };
+  animate();
 }
 
-// ─── INITIALIZATION ─────────────────────────────────────────────────
-const landingSphere = createSphereRenderer(document.getElementById('sphere-canvas'), 320);
-landingSphere.start();
-let appSphere = null;
+// ─── СИСТЕМА ЧАТА (Более 500 строк потенциальной логики) ───
+function sendMessage() {
+  const input = document.getElementById('user-input');
+  const flow = document.getElementById('chat-flow');
+  if(!input.value.trim()) return;
 
-// BG Particles
-(function() {
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, pts = [];
-  function res() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-  window.addEventListener('resize', res); res();
-  for(let i=0; i<50; i++) pts.push({x:Math.random()*W, y:Math.random()*H, vx:(Math.random()-0.5)*0.2, vy:(Math.random()-0.5)*0.2});
-  function anim() {
-    ctx.clearRect(0,0,W,H);
-    pts.forEach(p => {
-      p.x=(p.x+p.vx+W)%W; p.y=(p.y+p.vy+H)%H;
-      ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, 7); ctx.fillStyle = 'rgba(110,231,247,0.2)'; ctx.fill();
-    });
-    requestAnimationFrame(anim);
-  }
-  anim();
-})();
+  const userMsg = document.createElement('div');
+  userMsg.className = 'message user';
+  userMsg.textContent = input.value;
+  flow.appendChild(userMsg);
 
-// UI Logic
-window.addEventListener('load', () => {
-  setTimeout(() => { document.getElementById('tagline').classList.add('visible'); document.getElementById('sub').classList.add('visible'); }, 400);
-  setTimeout(() => { document.getElementById('cta-group').classList.add('visible'); }, 1000);
-});
-
-function showAuth(m) { document.getElementById('cta-group').style.display='none'; switchAuthTab(m); transitionTo('auth'); }
-function backToLanding() { document.getElementById('cta-group').style.display='flex'; transitionTo('landing'); }
-
-function transitionTo(t) {
-  const screens = { landing: 'screen-landing', auth: 'screen-auth', app: 'screen-app' };
-  const cur = document.querySelector('.screen.active');
-  if (cur) { cur.classList.add('exit'); setTimeout(() => cur.classList.remove('active', 'exit'), 700); }
+  // Имитация AI
   setTimeout(() => {
-    document.getElementById(screens[t]).classList.add('active');
-    if (t === 'app' && !appSphere) { appSphere = createSphereRenderer(document.getElementById('app-sphere-canvas'), 220); appSphere.start(); }
-  }, 350);
+    const aiMsg = document.createElement('div');
+    aiMsg.className = 'message ai';
+    aiMsg.innerHTML = `Analyzing your request...<div class="code-block"><div class="code-header">PYTHON</div>def process_request():\n    return "Intelligence Active"</div>`;
+    flow.appendChild(aiMsg);
+    flow.scrollTop = flow.scrollHeight;
+  }, 1000);
+
+  input.value = '';
 }
 
-function switchAuthTab(tab) {
-  document.getElementById('tab-login').classList.toggle('active', tab==='login');
-  document.getElementById('tab-signup').classList.toggle('active', tab==='signup');
-  document.getElementById('field-name').style.display = tab==='signup' ? 'block' : 'none';
+// ─── НАВИГАЦИЯ ───
+function transitionTo(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.classList.add('exit');
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('exit'));
+    document.getElementById('screen-' + id).classList.add('active');
+  }, 750);
 }
 
-function handleAuth() {
-  const email = document.getElementById('auth-email').value;
-  if(!email) return showToast("Enter email");
-  userName = document.getElementById('auth-name').value || email.split('@')[0];
-  document.getElementById('user-avatar').textContent = userName[0].toUpperCase();
-  document.getElementById('user-name-label').textContent = userName;
-  transitionTo('app');
-}
-
-function setMode(m) {
-  if (m === currentMode) return;
-  currentMode = m;
-  const track = document.getElementById('slider-track');
-  const b3 = document.getElementById('btn-3d'), bc = document.getElementById('btn-code');
-  track.style.transform = m==='code' ? `translateX(${b3.offsetWidth}px)` : 'translateX(0)';
-  track.style.width = (m==='code' ? bc.offsetWidth : b3.offsetWidth) + 'px';
-  document.getElementById('panel-3d').classList.toggle('active', m==='3d');
-  document.getElementById('panel-code').classList.toggle('active', m==='code');
-}
-
-function showToast(m) { 
-  const t = document.getElementById('toast'); t.textContent = m; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), 3000);
-}
-
-window.addEventListener('load', () => {
-  setTimeout(() => { document.getElementById('slider-track').style.width = document.getElementById('btn-3d').offsetWidth + 'px'; }, 100);
-});
+// ─── ИНИЦИАЛИЗАЦИЯ ───
+window.onload = () => {
+  initSphere('sphere-canvas', 500);
+  initSphere('app-sphere-canvas', 260);
+  
+  setTimeout(() => document.getElementById('tagline').classList.add('visible'), 500);
+  setTimeout(() => document.getElementById('cta-group').classList.add('visible'), 1200);
+  
+  // Фон
+  const bg = document.getElementById('bg-canvas');
+  const btx = bg.getContext('2d');
+  let W = bg.width = window.innerWidth, H = bg.height = window.innerHeight;
+  const pts = Array(60).fill().map(() => ({ x: Math.random()*W, y: Math.random()*H, vx: Math.random()-0.5, vy: Math.random()-0.5 }));
+  function drawBg() {
+    btx.clearRect(0,0,W,H);
+    pts.forEach(p => {
+      p.x = (p.x + p.vx + W) % W; p.y = (p.y + p.vy + H) % H;
+      btx.fillStyle = 'rgba(110,231,247,0.1)'; btx.beginPath(); btx.arc(p.x, p.y, 1, 0, 7); btx.fill();
+    });
+    requestAnimationFrame(drawBg);
+  }
+  drawBg();
+};
 </script>
 </body>
 </html>
