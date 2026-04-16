@@ -3,293 +3,1247 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>NOVA — Premium AI Studio</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<title>NOVA — AI Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"/>
 <style>
-  /* ─── Продвинутые переменные и база ─── */
-  :root {
-    --bg: #04040a;
-    --surface: #0c0c18;
-    --surface2: #121224;
-    --surface3: #1a1a32;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.12);
-    --text: #e8e8f0;
-    --muted: #6a6a88;
-    --accent: #6ee7f7;
-    --accent2: #b48ef7;
-    --glow: rgba(110,231,247,0.4);
-    --glow2: rgba(180,142,247,0.4);
-    --font-display: 'Instrument Serif', serif;
-    --font-body: 'DM Sans', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-    --shadow-lg: 0 40px 100px rgba(0,0,0,0.8);
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; width: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); overflow: hidden; }
-
-  /* ─── Эффекты фона ─── */
-  #bg-canvas { position: fixed; inset: 0; z-index: 0; }
-  .grain { position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0.04; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256'/%3E"); }
-  .vignette { position: fixed; inset: 0; z-index: 2; pointer-events: none; background: radial-gradient(circle, transparent 20%, rgba(4,4,10,0.8) 100%); }
-
-  /* ─── Навигация и Сетка ─── */
-  .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.8s cubic-bezier(0.16,1,0.3,1); opacity: 0; pointer-events: none; z-index: 5; }
-  .screen.active { opacity: 1; pointer-events: all; transform: scale(1); }
-  .screen.exit { opacity: 0; transform: scale(1.05) translateY(-20px); }
-
-  /* ─── Лендинг (Секция 1) ─── */
-  #sphere-canvas { display: block; filter: drop-shadow(0 0 30px var(--glow)); cursor: crosshair; }
-  .landing-content { z-index: 10; text-align: center; }
-  .tagline { font-family: var(--font-display); font-size: clamp(3rem, 8vw, 5.5rem); font-style: italic; line-height: 0.9; opacity: 0; transform: translateY(30px); transition: 1s ease 0.4s; }
-  .tagline.visible { opacity: 1; transform: translateY(0); }
-
-  /* ─── Кнопки и Интерактивы ─── */
-  .cta-group { position: fixed; bottom: 60px; display: flex; gap: 20px; z-index: 100; opacity: 0; transform: translateY(20px); transition: 0.8s ease 1s; }
-  .cta-group.visible { opacity: 1; transform: translateY(0); }
-  .btn { padding: 16px 36px; border-radius: 100px; border: none; font-weight: 600; font-size: 14px; letter-spacing: 0.05em; cursor: pointer; transition: 0.3s; }
-  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #000; box-shadow: 0 10px 30px var(--glow); }
-  .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px var(--glow); }
-
-  /* ─── Модуль Приложения (Секция 2) ─── */
-  .app-container { width: 100%; height: 100%; display: grid; grid-template-columns: 280px 1fr 320px; background: var(--bg); position: relative; }
-  
-  /* Сайдбар (много строк логики UI) */
-  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; gap: 30px; }
-  .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; color: var(--muted); cursor: pointer; transition: 0.2s; }
-  .nav-item.active { background: var(--surface2); color: var(--accent); border: 1px solid var(--border); }
-
-  /* Чат и Генерация (Основная часть) */
-  .main-panel { position: relative; display: flex; flex-direction: column; height: 100%; border-right: 1px solid var(--border); }
-  .chat-area { flex: 1; overflow-y: auto; padding: 40px; display: flex; flex-direction: column; gap: 24px; }
-  .message { max-width: 80%; padding: 20px; border-radius: 20px; line-height: 1.6; animation: fadeIn 0.4s ease; }
-  .message.ai { background: var(--surface); border: 1px solid var(--border); align-self: flex-start; }
-  .message.user { background: var(--surface2); border: 1px solid var(--accent); align-self: flex-end; color: var(--accent); }
-
-  .input-wrapper { padding: 20px 40px 40px; }
-  .input-box { background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 20px; display: flex; gap: 15px; }
-  textarea { flex: 1; background: transparent; border: none; color: #fff; outline: none; resize: none; font-family: inherit; font-size: 15px; }
-
-  /* Правая панель (Параметры) */
-  .inspector { padding: 24px; background: var(--surface); overflow-y: auto; }
-  .control-group { margin-bottom: 32px; }
-  .control-label { font-size: 11px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; display: block; }
-  
-  /* ─── Анимации ─── */
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* ─── Специфические стили для "Senior" фишек ─── */
-  .code-block { background: #000; padding: 15px; border-radius: 10px; font-family: var(--font-mono); font-size: 13px; margin-top: 10px; border: 1px solid var(--border); position: relative; }
-  .code-header { color: var(--muted); font-size: 11px; margin-bottom: 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
-
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+:root {
+  --bg: #f7f9fc;
+  --bg2: #eef2f8;
+  --surface: #ffffff;
+  --border: rgba(100,160,255,0.15);
+  --border2: rgba(100,160,255,0.28);
+  --text: #0a0f1e;
+  --muted: #7a8aa8;
+  --accent: #3a7ef5;
+  --accent2: #7eb8ff;
+  --accent3: #c8e0ff;
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+ 
+html, body {
+  height: 100%; width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-display);
+  overflow: hidden;
+  user-select: none;
+}
+ 
+/* ─── SCREENS ─── */
+.screen {
+  position: fixed; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 2;
+}
+.screen.active { opacity: 1; pointer-events: all; }
+.screen.exit { opacity: 0; transform: scale(0.97); }
+ 
+/* ─── SUBTLE BG GRID ─── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(58,126,245,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(58,126,245,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  z-index: 0;
+  pointer-events: none;
+}
+ 
+/* ─── LANDING ─── */
+#screen-landing {
+  gap: 0;
+  z-index: 3;
+}
+ 
+.sphere-wrap {
+  position: relative;
+  z-index: 2;
+  cursor: grab;
+}
+.sphere-wrap:active { cursor: grabbing; }
+ 
+#sphere-canvas { display: block; }
+ 
+.landing-tagline {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-weight: 300;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  text-align: center;
+  margin-top: 36px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.9s ease 0.3s, transform 0.9s ease 0.3s;
+}
+.landing-tagline span { color: var(--accent); font-weight: 500; }
+.landing-tagline.visible { opacity: 1; transform: translateY(0); }
+ 
+.landing-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--muted);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-top: 10px;
+  opacity: 0;
+  transition: opacity 0.9s ease 0.7s;
+}
+.landing-sub.visible { opacity: 1; }
+ 
+/* ─── CTA ─── */
+.cta-group {
+  position: fixed;
+  bottom: 44px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.cta-group.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+ 
+.btn {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 11px 30px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(0.97) !important; }
+ 
+.btn-ghost {
+  background: var(--surface);
+  color: var(--accent);
+  border: 1.5px solid var(--border2);
+}
+.btn-ghost:hover {
+  background: var(--accent3);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+ 
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(58,126,245,0.3);
+}
+.btn-primary:hover {
+  background: #2a6ee5;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(58,126,245,0.4);
+}
+ 
+/* ─── AUTH ─── */
+#screen-auth { z-index: 4; }
+ 
+.auth-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: 20px;
+  padding: 36px 36px 32px;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 8px 48px rgba(58,126,245,0.08);
+  position: relative; z-index: 5;
+}
+ 
+.auth-logo {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent);
+  margin-bottom: 4px;
+  text-align: center;
+  letter-spacing: 0.12em;
+}
+ 
+.auth-mode-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 24px;
+  letter-spacing: 0.1em;
+}
+ 
+.auth-tabs {
+  display: flex;
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+}
+.auth-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-display);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.22s;
+  border: none;
+  background: transparent;
+  letter-spacing: 0.04em;
+}
+.auth-tab.active {
+  background: var(--surface);
+  color: var(--accent);
+  border: 1px solid var(--border2);
+}
+ 
+.field { margin-bottom: 12px; }
+.field label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.field input {
+  width: 100%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 13px;
+  font-size: 13px;
+  font-family: var(--font-display);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(58,126,245,0.1);
+}
+.field input::placeholder { color: var(--muted); font-size: 12px; }
+ 
+.btn-auth { width: 100%; margin-top: 8px; padding: 12px; border-radius: 10px; font-size: 13px; }
+ 
+.auth-back {
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.2s;
+  letter-spacing: 0.06em;
+}
+.auth-back:hover { color: var(--accent); }
+ 
+/* ─── APP ─── */
+#screen-app {
+  z-index: 3;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+ 
+.app-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  z-index: 10;
+  flex-shrink: 0;
+}
+ 
+.app-logo {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.14em;
+}
+ 
+.mode-slider-wrap { position: relative; }
+ 
+.mode-slider {
+  display: flex;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 100px;
+  padding: 4px;
+  position: relative;
+}
+ 
+.mode-slider-track {
+  position: absolute;
+  top: 4px; left: 4px;
+  height: calc(100% - 8px);
+  border-radius: 100px;
+  background: var(--accent);
+  transition: transform 0.35s cubic-bezier(0.34,1.4,0.64,1), width 0.35s cubic-bezier(0.34,1.4,0.64,1);
+}
+ 
+.mode-btn {
+  position: relative; z-index: 2;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 7px 18px;
+  border-radius: 100px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.25s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.04em;
+}
+.mode-btn.active { color: #fff; }
+.mode-icon { font-size: 13px; }
+ 
+.user-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 5px 12px 5px 5px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  transition: all 0.2s;
+  font-family: var(--font-display);
+}
+.user-badge:hover { border-color: var(--accent); background: var(--accent3); }
+ 
+.avatar {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: #fff;
+}
+ 
+/* ─── APP BODY ─── */
+.app-body {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+ 
+/* ─── PANELS ─── */
+.panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 24px 20px 20px;
+  opacity: 0;
+  transform: translateX(24px);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1);
+  pointer-events: none;
+  overflow: hidden;
+}
+.panel.active { opacity: 1; transform: translateX(0); pointer-events: all; }
+.panel.exit-left { opacity: 0; transform: translateX(-24px); }
+ 
+/* ─── 3D PANEL ─── */
+#panel-3d { gap: 20px; }
+ 
+.panel-sphere-wrap { flex-shrink: 0; cursor: grab; }
+.panel-sphere-wrap:active { cursor: grabbing; }
+ 
+.model-prompt-area {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+ 
+.model-prompt-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+ 
+.model-prompt-box {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 15px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+  resize: none;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 70px;
+}
+.model-prompt-box:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(58,126,245,0.1);
+}
+.model-prompt-box::placeholder { color: var(--muted); font-size: 12px; }
+ 
+.model-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+ 
+.tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 4px 11px;
+  border-radius: 100px;
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.18s;
+  background: transparent;
+}
+.tag:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(58,126,245,0.07);
+}
+ 
+.model-generate-row { display: flex; gap: 10px; }
+ 
+.model-status {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 18px;
+  letter-spacing: 0.06em;
+}
+.status-dot-pulse {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%,100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+ 
+/* ─── CODE PANEL ─── */
+#panel-code {
+  justify-content: flex-end;
+  overflow: hidden;
+  gap: 0;
+  padding: 12px 20px 16px;
+}
+ 
+.chat-messages {
+  flex: 1;
+  width: 100%;
+  max-width: 680px;
+  overflow-y: auto;
+  padding: 8px 0 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  scroll-behavior: smooth;
+}
+.chat-messages::-webkit-scrollbar { width: 2px; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+ 
+.chat-msg {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  animation: msgIn 0.28s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.chat-msg.user { flex-direction: row-reverse; }
+ 
+.chat-av {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 600;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-family: var(--font-mono);
+}
+.chat-av.ai {
+  background: var(--accent3);
+  color: var(--accent);
+  border: 1px solid var(--border2);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+.chat-av.user-av { background: var(--accent); color: #fff; }
+ 
+.chat-bubble {
+  max-width: 76%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text);
+}
+.chat-msg:not(.user) .chat-bubble {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top-left-radius: 3px;
+}
+.chat-msg.user .chat-bubble {
+  background: var(--accent);
+  color: #fff;
+  border-top-right-radius: 3px;
+}
+ 
+.code-block {
+  margin-top: 8px;
+  background: #f0f5ff;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.code-header {
+  padding: 5px 12px;
+  background: var(--accent3);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+.code-copy {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.code-copy:hover { background: rgba(58,126,245,0.12); }
+ 
+.code-block pre {
+  padding: 10px 13px;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #1a3a7a;
+  font-family: var(--font-mono);
+  overflow-x: auto;
+  white-space: pre;
+}
+ 
+.typing-indicator {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  padding: 10px 14px;
+}
+.typing-indicator span {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: typingBounce 1.2s ease-in-out infinite;
+}
+.typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes typingBounce {
+  0%,80%,100% { transform: translateY(0); opacity: 0.3; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
+ 
+/* ─── CHAT INPUT ─── */
+.chat-input-area {
+  width: 100%;
+  max-width: 680px;
+  padding: 8px 0 0;
+  flex-shrink: 0;
+}
+ 
+.chat-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: var(--surface);
+  border: 1.5px solid var(--border2);
+  border-radius: 100px;
+  padding: 7px 7px 7px 18px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.chat-input-row:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(58,126,245,0.1);
+}
+ 
+#chat-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-display);
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.4;
+  resize: none;
+  max-height: 80px;
+  min-height: 20px;
+}
+#chat-input::placeholder { color: var(--muted); }
+ 
+.send-btn {
+  width: 32px; height: 32px;
+  border-radius: 100px;
+  background: var(--accent);
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.18s;
+  box-shadow: 0 2px 10px rgba(58,126,245,0.3);
+}
+.send-btn:hover { background: #2a6ee5; transform: scale(1.06); box-shadow: 0 4px 16px rgba(58,126,245,0.4); }
+.send-btn:active { transform: scale(0.95); }
+.send-btn:disabled { opacity: 0.35; cursor: default; transform: none; }
+.send-btn svg { width: 13px; height: 13px; fill: #fff; }
+ 
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--text);
+  color: #fff;
+  border-radius: 100px;
+  padding: 9px 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+ 
+@media (max-height: 700px) {
+  .auth-card { padding: 24px; }
+  .panel { padding: 12px 16px 14px; }
+}
 </style>
 </head>
 <body>
-
-<canvas id="bg-canvas"></canvas>
-<div class="grain"></div>
-<div class="vignette"></div>
-
+ 
+<!-- LANDING -->
 <div class="screen active" id="screen-landing">
-  <div class="landing-content">
-    <canvas id="sphere-canvas" width="500" height="500"></canvas>
-    <h1 class="tagline" id="tagline">The future of<br><span style="color:var(--accent)">Intelligence.</span></h1>
+  <div class="sphere-wrap" id="landing-sphere-wrap">
+    <canvas id="sphere-canvas" width="300" height="300"></canvas>
   </div>
+  <p class="landing-tagline" id="tagline">Create <span>without</span> limits.</p>
+  <p class="landing-sub" id="sub">Powered by AI</p>
 </div>
-
+ 
+<!-- CTA BUTTONS -->
 <div class="cta-group" id="cta-group">
-  <button class="btn btn-ghost" style="color:#fff; background: rgba(255,255,255,0.05);" onclick="transitionTo('auth')">Sign In</button>
-  <button class="btn btn-primary" onclick="transitionTo('app')">Get Started — Free</button>
+  <button class="btn btn-ghost" onclick="showAuth('login')">Log in</button>
+  <button class="btn btn-primary" onclick="showAuth('signup')">Create account</button>
 </div>
-
-<div class="screen" id="screen-app">
-  <div class="app-container">
-    <aside class="sidebar">
-      <div style="font-family: var(--font-display); font-size: 24px; italic; margin-bottom: 20px;">NOVA.</div>
-      <nav>
-        <div class="nav-item active"><span>◈</span> Dashboard</div>
-        <div class="nav-item"><span>⌨</span> Code Engine</div>
-        <div class="nav-item"><span>◎</span> 3D Generator</div>
-        <div class="nav-item"><span>◒</span> History</div>
-      </nav>
-      <div style="margin-top:auto;">
-        <div class="nav-item" onclick="transitionTo('landing')"><span>←</span> Sign Out</div>
+ 
+<!-- AUTH -->
+<div class="screen" id="screen-auth">
+  <div class="auth-card">
+    <div class="auth-logo">NOVA</div>
+    <div class="auth-mode-label" id="auth-mode-label">welcome back</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Log in</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Sign up</button>
+    </div>
+    <div id="auth-fields">
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="auth-email" placeholder="you@example.com"/>
       </div>
-    </aside>
-
-    <main class="main-panel">
-      <div class="chat-area" id="chat-flow">
-        <div class="message ai">
-          Welcome back, Alex. How can we accelerate your project today?
-        </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="auth-password" placeholder="••••••••"/>
       </div>
-      <div class="input-wrapper">
-        <div class="input-box">
-          <textarea id="user-input" placeholder="Ask anything, or type '/' for commands..." rows="1"></textarea>
-          <button class="btn btn-primary" style="padding: 10px 20px;" onclick="sendMessage()">Send</button>
-        </div>
+      <div class="field" id="field-name" style="display:none">
+        <label>Your name</label>
+        <input type="text" id="auth-name" placeholder="Alex"/>
       </div>
-    </main>
-
-    <aside class="inspector">
-      <div class="control-group">
-        <span class="control-label">Visualizer</span>
-        <canvas id="app-sphere-canvas" width="260" height="260" style="background:var(--surface2); border-radius:20px;"></canvas>
-      </div>
-      <div class="control-group">
-        <span class="control-label">Model Configuration</span>
-        <div style="background:var(--surface2); padding:15px; border-radius:12px; font-size:13px;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-            <span>Creativity</span><span style="color:var(--accent)">0.85</span>
-          </div>
-          <div style="width:100%; height:4px; background:var(--bg); border-radius:2px; overflow:hidden;">
-            <div style="width:85%; height:100%; background:var(--accent);"></div>
-          </div>
-        </div>
-      </div>
-      <div class="control-group">
-        <span class="control-label">System Status</span>
-        <div style="color:var(--accent); font-size:12px;">● Neural Engine Online</div>
-      </div>
-    </aside>
+    </div>
+    <button class="btn btn-primary btn-auth" id="auth-submit-btn" onclick="handleAuth()">Continue</button>
+    <div class="auth-back" onclick="backToLanding()">← back</div>
   </div>
 </div>
-
+ 
+<!-- APP -->
+<div class="screen" id="screen-app">
+  <div class="app-header">
+    <div class="app-logo">NOVA</div>
+    <div class="mode-slider-wrap">
+      <div class="mode-slider" id="mode-slider">
+        <div class="mode-slider-track" id="slider-track"></div>
+        <button class="mode-btn active" id="btn-3d" onclick="setMode('3d')">
+          <span class="mode-icon">◈</span> 3D Model
+        </button>
+        <button class="mode-btn" id="btn-code" onclick="setMode('code')">
+          <span class="mode-icon">⌨</span> Generate Code
+        </button>
+      </div>
+    </div>
+    <div class="user-badge" id="user-badge">
+      <div class="avatar" id="user-avatar">A</div>
+      <span id="user-name-label">Alex</span>
+    </div>
+  </div>
+ 
+  <div class="app-body">
+    <!-- 3D PANEL -->
+    <div class="panel active" id="panel-3d">
+      <div class="panel-sphere-wrap" id="panel-sphere-wrap">
+        <canvas id="app-sphere-canvas" width="200" height="200"></canvas>
+      </div>
+      <div class="model-prompt-area">
+        <div class="model-prompt-label">Describe your 3D model</div>
+        <textarea class="model-prompt-box" id="model-prompt" placeholder="e.g. A sleek futuristic helmet with glowing visor, smooth metallic surface…"></textarea>
+        <div class="model-tags">
+          <button class="tag" onclick="appendTag('low-poly')">low-poly</button>
+          <button class="tag" onclick="appendTag('realistic')">realistic</button>
+          <button class="tag" onclick="appendTag('sci-fi')">sci-fi</button>
+          <button class="tag" onclick="appendTag('organic')">organic</button>
+          <button class="tag" onclick="appendTag('mechanical')">mechanical</button>
+          <button class="tag" onclick="appendTag('abstract')">abstract</button>
+        </div>
+        <div class="model-generate-row">
+          <button class="btn btn-primary" style="flex:1;border-radius:10px;padding:12px;" onclick="generateModel()">Generate Model</button>
+        </div>
+        <div class="model-status" id="model-status"></div>
+      </div>
+    </div>
+ 
+    <!-- CODE PANEL -->
+    <div class="panel" id="panel-code">
+      <div class="chat-messages" id="chat-messages">
+        <div class="chat-msg">
+          <div class="chat-av ai">AI</div>
+          <div class="chat-bubble">Hello! I'm your code generation assistant. Describe what you want to build and I'll write the code for you.</div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <div class="chat-input-row">
+          <textarea id="chat-input" rows="1" placeholder="Describe what you want to build…" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+          <button class="send-btn" id="send-btn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+ 
+<div class="toast" id="toast"></div>
+ 
 <script>
-// ─── ГЛОБАЛЬНОЕ СОСТОЯНИЕ ───
-let time = 0;
-const mouse = { x: 0, y: 0, active: false };
-
-window.addEventListener('mousemove', (e) => {
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-  mouse.active = true;
-});
-
-// ─── ЛОГИКА СФЕРЫ (Новая, улучшенная версия) ───
-function initSphere(canvasId, size) {
-  const canvas = document.getElementById(canvasId);
+// ─── STATE ───────────────────────────────────────────────────────────
+let currentScreen = 'landing';
+let currentMode = '3d';
+let currentAuthTab = 'login';
+let userName = 'Alex';
+let isGenerating = false;
+let chatHistory = [];
+ 
+// ─── DOT SPHERE ───────────────────────────────────────────────────────
+function createDotSphere(canvas, size) {
   const ctx = canvas.getContext('2d');
   const cx = size / 2, cy = size / 2;
-  const count = 900;
-  const particles = [];
-  let angleX = 0, angleY = 0;
-
-  for(let i=0; i<count; i++) {
-    const phi = Math.acos(-1 + (2 * i) / count);
-    const theta = Math.sqrt(count * Math.PI) * phi;
-    particles.push({
-      ox: Math.cos(theta) * Math.sin(phi),
-      oy: Math.sin(theta) * Math.sin(phi),
-      oz: Math.cos(phi),
-      size: Math.random() * 1.5 + 0.5
+  const r = size * 0.36;
+ 
+  let t = 0;
+  let animId;
+ 
+  // Distortion state
+  let distortAmt = 0;
+  let distortTarget = 0;
+  let stretchX = 0, stretchY = 0;
+  let recovering = false;
+  let recoveryTimer = 0;
+ 
+  // Mouse interaction
+  let isDragging = false;
+  let dragStartX = 0, dragStartY = 0;
+  let dragCurX = 0, dragCurY = 0;
+  let rotX = 0, rotY = 0;
+  let rotVX = 0, rotVY = 0;
+ 
+  function addInteraction(el) {
+    el.addEventListener('mousedown', e => {
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      dragCurX = e.clientX;
+      dragCurY = e.clientY;
+      e.preventDefault();
     });
-  }
-
-  function animate() {
-    ctx.clearRect(0, 0, size, size);
-    time += 0.02;
-    angleX += 0.002; angleY += 0.003;
-    const rect = canvas.getBoundingClientRect();
-
-    const drawn = particles.map(p => {
-      const morph = 1 + Math.sin(time + p.ox * 3) * 0.12;
-      let x = p.ox * morph, y = p.oy * morph, z = p.oz * morph;
-
-      // Rotate
-      let x1 = x * Math.cos(angleY) - z * Math.sin(angleY);
-      let z1 = z * Math.cos(angleY) + x * Math.sin(angleY);
-      let y2 = y * Math.cos(angleX) - z1 * Math.sin(angleX);
-      let z2 = z1 * Math.cos(angleX) + y * Math.sin(angleX);
-
-      const scale = 2 / (2 - z2);
-      let sx = cx + x1 * (size * 0.35) * scale;
-      let sy = cy + y2 * (size * 0.35) * scale;
-
-      // Mouse Pull
-      if (mouse.active) {
-        const dx = mouse.x - (rect.left + sx);
-        const dy = mouse.y - (rect.top + sy);
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < 120) {
-          const f = (120 - dist) / 120;
-          sx += dx * f * 0.3; sy += dy * f * 0.3;
-        }
+    window.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      const dx = e.clientX - dragCurX;
+      const dy = e.clientY - dragCurY;
+      dragCurX = e.clientX;
+      dragCurY = e.clientY;
+      rotVX += dy * 0.012;
+      rotVY += dx * 0.012;
+    });
+    window.addEventListener('mouseup', e => {
+      if (!isDragging) return;
+      isDragging = false;
+      // measure total drag distance for stretch
+      const totalDX = e.clientX - dragStartX;
+      const totalDY = e.clientY - dragStartY;
+      const dist = Math.sqrt(totalDX*totalDX + totalDY*totalDY);
+      if (dist > 8) {
+        distortTarget = Math.min(dist / 60, 2.2);
+        stretchX = totalDX / dist;
+        stretchY = totalDY / dist;
+        recovering = false;
+        recoveryTimer = 120; // ~2s at 60fps
       }
-      return { sx, sy, z2, s: p.size * scale };
     });
-
-    drawn.sort((a,b) => a.z2 - b.z2).forEach(p => {
+    // touch
+    el.addEventListener('touchstart', e => {
+      const t = e.touches[0];
+      isDragging = true;
+      dragStartX = t.clientX; dragStartY = t.clientY;
+      dragCurX = t.clientX; dragCurY = t.clientY;
+    }, {passive:true});
+    el.addEventListener('touchmove', e => {
+      if (!isDragging) return;
+      const touch = e.touches[0];
+      rotVX += (touch.clientY - dragCurY) * 0.012;
+      rotVY += (touch.clientX - dragCurX) * 0.012;
+      dragCurX = touch.clientX; dragCurY = touch.clientY;
+    }, {passive:true});
+    el.addEventListener('touchend', e => { isDragging = false; }, {passive:true});
+  }
+ 
+  function project3D(px, py, pz) {
+    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    // rotate Y
+    const x1 = px * cosY - pz * sinY;
+    const z1 = px * sinY + pz * cosY;
+    // rotate X
+    const y2 = py * cosX - z1 * sinX;
+    const z2 = py * sinX + z1 * cosX;
+    const scale = 1 + z2 / (r * 3);
+    return { x: cx + x1 * scale, y: cy + y2 * scale, z: z2, scale };
+  }
+ 
+  function drawDots() {
+    ctx.clearRect(0, 0, size, size);
+ 
+    // Smooth rotation inertia
+    if (!isDragging) {
+      rotVX *= 0.94;
+      rotVY *= 0.94;
+      rotX += rotVX;
+      rotY += rotVY;
+      // Slow auto-spin
+      rotY += 0.004;
+    } else {
+      rotX += rotVX;
+      rotY += rotVY;
+      rotVX *= 0.8;
+      rotVY *= 0.8;
+    }
+ 
+    // Distort recovery
+    if (recoveryTimer > 0) {
+      recoveryTimer--;
+      if (recoveryTimer <= 0) recovering = true;
+    }
+    if (recovering) {
+      distortTarget = Math.max(distortTarget - 0.04, 0);
+      if (distortTarget <= 0) { recovering = false; distortAmt = 0; }
+    }
+    distortAmt += (distortTarget - distortAmt) * 0.06;
+ 
+    const dots = [];
+    const rows = 18;
+    for (let i = 0; i <= rows; i++) {
+      const phi = (i / rows) * Math.PI;
+      const sinPhi = Math.sin(phi);
+      const cosPhi = Math.cos(phi);
+      const cols = Math.max(1, Math.round(sinPhi * rows * 1.8));
+      for (let j = 0; j < cols; j++) {
+        const theta = (j / cols) * Math.PI * 2 + t * (i % 2 === 0 ? 0.3 : -0.2);
+ 
+        // Base sphere coords
+        let bx = r * sinPhi * Math.cos(theta);
+        let by = r * cosPhi;
+        let bz = r * sinPhi * Math.sin(theta);
+ 
+        // Apply stretch distortion
+        if (distortAmt > 0.01) {
+          const stretchFactor = 1 + distortAmt * 0.6;
+          bx += stretchX * r * distortAmt * 0.4 * sinPhi;
+          by += stretchY * r * distortAmt * 0.4 * cosPhi;
+          // Ripple effect
+          const ripple = Math.sin(phi * 4 + t * 3) * distortAmt * 0.08;
+          bx *= (1 + ripple);
+          by *= (1 + ripple);
+          bz *= (1 + ripple);
+        }
+ 
+        const proj = project3D(bx, by, bz);
+ 
+        // Depth-based color: white to blue
+        const depthT = (proj.z / r + 1) / 2; // 0=back, 1=front
+        const dotSize = (0.9 + depthT * 1.3) * proj.scale;
+ 
+        // White (#fff) to blue (#3a7ef5) based on depth + time shimmer
+        const shimmer = (Math.sin(theta * 2 + phi * 3 + t * 2.5) + 1) / 2;
+        const colorT = depthT * 0.7 + shimmer * 0.3;
+ 
+        const rC = Math.round(58 + (255-58) * colorT);
+        const gC = Math.round(126 + (255-126) * colorT);
+        const bC = Math.round(245 + (255-245) * colorT);
+        const alpha = 0.25 + depthT * 0.75;
+ 
+        dots.push({ x: proj.x, y: proj.y, z: proj.z, size: dotSize, rC, gC, bC, alpha });
+      }
+    }
+ 
+    // Sort by z (back to front)
+    dots.sort((a, b) => a.z - b.z);
+ 
+    for (const d of dots) {
       ctx.beginPath();
-      ctx.arc(p.sx, p.sy, p.s, 0, 7);
-      ctx.fillStyle = p.z2 > 0.3 ? '#6ee7f7' : (p.z2 < -0.3 ? '#b48ef7' : '#8fbaf7');
-      ctx.globalAlpha = Math.max(0.1, (p.z2 + 1) / 2);
+      ctx.arc(d.x, d.y, Math.max(0.5, d.size), 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${d.rC},${d.gC},${d.bC},${d.alpha})`;
       ctx.fill();
-    });
-    requestAnimationFrame(animate);
+    }
+ 
+    // Subtle outer glow ring
+    const grd = ctx.createRadialGradient(cx, cy, r * 0.75, cx, cy, r * 1.4);
+    grd.addColorStop(0, 'rgba(58,126,245,0)');
+    grd.addColorStop(0.7, 'rgba(58,126,245,0.04)');
+    grd.addColorStop(1, 'rgba(58,126,245,0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 1.4, 0, Math.PI * 2);
+    ctx.fillStyle = grd;
+    ctx.fill();
   }
-  animate();
+ 
+  function tick() {
+    t += 0.008;
+    drawDots();
+    animId = requestAnimationFrame(tick);
+  }
+ 
+  function start() { animId = requestAnimationFrame(tick); }
+  function stop() { cancelAnimationFrame(animId); }
+ 
+  return { start, stop, addInteraction };
 }
-
-// ─── СИСТЕМА ЧАТА (Более 500 строк потенциальной логики) ───
-function sendMessage() {
-  const input = document.getElementById('user-input');
-  const flow = document.getElementById('chat-flow');
-  if(!input.value.trim()) return;
-
-  const userMsg = document.createElement('div');
-  userMsg.className = 'message user';
-  userMsg.textContent = input.value;
-  flow.appendChild(userMsg);
-
-  // Имитация AI
+ 
+// Init landing sphere
+const landingSphereEl = document.getElementById('sphere-canvas');
+const landingSphere = createDotSphere(landingSphereEl, 300);
+landingSphere.addInteraction(landingSphereEl);
+landingSphere.start();
+ 
+let appSphereInstance = null;
+ 
+// ─── LANDING ANIMATION ────────────────────────────────────────────────
+window.addEventListener('load', () => {
   setTimeout(() => {
-    const aiMsg = document.createElement('div');
-    aiMsg.className = 'message ai';
-    aiMsg.innerHTML = `Analyzing your request...<div class="code-block"><div class="code-header">PYTHON</div>def process_request():\n    return "Intelligence Active"</div>`;
-    flow.appendChild(aiMsg);
-    flow.scrollTop = flow.scrollHeight;
-  }, 1000);
-
+    document.getElementById('tagline').classList.add('visible');
+    document.getElementById('sub').classList.add('visible');
+  }, 350);
+  setTimeout(() => {
+    document.getElementById('cta-group').classList.add('visible');
+  }, 2800);
+});
+ 
+// ─── SCREEN TRANSITIONS ───────────────────────────────────────────────
+function showAuth(mode) {
+  document.getElementById('cta-group').style.display = 'none';
+  switchAuthTab(mode);
+  transitionTo('auth');
+}
+ 
+function backToLanding() {
+  document.getElementById('cta-group').style.display = 'flex';
+  document.getElementById('cta-group').classList.add('visible');
+  transitionTo('landing');
+}
+ 
+function transitionTo(target) {
+  const screens = { landing: 'screen-landing', auth: 'screen-auth', app: 'screen-app' };
+  const current = document.querySelector('.screen.active');
+  if (current) {
+    current.classList.add('exit');
+    setTimeout(() => current.classList.remove('active', 'exit'), 600);
+  }
+  setTimeout(() => {
+    const next = document.getElementById(screens[target]);
+    next.classList.add('active');
+    currentScreen = target;
+    if (target === 'app' && !appSphereInstance) {
+      const appCanvas = document.getElementById('app-sphere-canvas');
+      appSphereInstance = createDotSphere(appCanvas, 200);
+      appSphereInstance.addInteraction(appCanvas);
+      appSphereInstance.start();
+    }
+  }, 320);
+}
+ 
+// ─── AUTH ─────────────────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  currentAuthTab = tab;
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('auth-mode-label').textContent = tab === 'login' ? 'welcome back' : 'create your account';
+  document.getElementById('field-name').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('auth-submit-btn').textContent = tab === 'login' ? 'Log in' : 'Create account';
+}
+ 
+function handleAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-password').value;
+  if (!email || !pass) { showToast('Please fill in all fields.'); return; }
+  userName = currentAuthTab === 'signup'
+    ? (document.getElementById('auth-name').value.trim() || email.split('@')[0])
+    : email.split('@')[0];
+  document.getElementById('user-avatar').textContent = userName.charAt(0).toUpperCase();
+  document.getElementById('user-name-label').textContent = userName;
+  document.getElementById('cta-group').style.display = 'none';
+  transitionTo('app');
+}
+ 
+// ─── MODE SLIDER ──────────────────────────────────────────────────────
+function setMode(mode) {
+  if (mode === currentMode) return;
+  currentMode = mode;
+  const btn3d = document.getElementById('btn-3d');
+  const btnCode = document.getElementById('btn-code');
+  const track = document.getElementById('slider-track');
+  const panel3d = document.getElementById('panel-3d');
+  const panelCode = document.getElementById('panel-code');
+ 
+  if (mode === 'code') {
+    btn3d.classList.remove('active');
+    btnCode.classList.add('active');
+    track.style.transform = `translateX(${btn3d.offsetWidth}px)`;
+    track.style.width = btnCode.offsetWidth + 'px';
+    panel3d.classList.add('exit-left'); panel3d.classList.remove('active');
+    setTimeout(() => { panel3d.classList.remove('exit-left'); panelCode.classList.add('active'); }, 50);
+  } else {
+    btnCode.classList.remove('active');
+    btn3d.classList.add('active');
+    track.style.transform = 'translateX(0)';
+    track.style.width = btn3d.offsetWidth + 'px';
+    panelCode.classList.add('exit-left'); panelCode.classList.remove('active');
+    setTimeout(() => { panelCode.classList.remove('exit-left'); panel3d.classList.add('active'); }, 50);
+  }
+}
+ 
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const btn3d = document.getElementById('btn-3d');
+    const track = document.getElementById('slider-track');
+    if (btn3d && track) track.style.width = btn3d.offsetWidth + 'px';
+  }, 100);
+});
+ 
+// ─── 3D MODEL GENERATION ──────────────────────────────────────────────
+const modelStatuses = [
+  'Initializing geometry engine…',
+  'Parsing mesh topology…',
+  'Generating vertex data…',
+  'Applying surface materials…',
+  'Rendering UV maps…',
+  'Finalizing normals…',
+  'Model ready for export ✓'
+];
+ 
+function appendTag(tag) {
+  const ta = document.getElementById('model-prompt');
+  ta.value = ta.value.trim() ? ta.value.trim() + ', ' + tag : tag;
+  ta.focus();
+}
+ 
+function generateModel() {
+  const prompt = document.getElementById('model-prompt').value.trim();
+  if (!prompt) { showToast('Please describe your model first.'); return; }
+  const statusEl = document.getElementById('model-status');
+  let step = 0;
+  function nextStep() {
+    if (step >= modelStatuses.length) return;
+    const isDone = step === modelStatuses.length - 1;
+    statusEl.innerHTML = isDone
+      ? `<span style="color:var(--accent)">${modelStatuses[step]}</span>`
+      : `<div class="status-dot-pulse"></div>${modelStatuses[step]}`;
+    step++;
+    if (step < modelStatuses.length) setTimeout(nextStep, 600 + Math.random() * 500);
+  }
+  nextStep();
+}
+ 
+// ─── CODE CHAT ────────────────────────────────────────────────────────
+const SYSTEM_PROMPT = `You are an expert code generation assistant. When a user describes what they want to build, you write clean, production-ready code. Always include a brief explanation, then provide the code in a code block. Keep responses focused and practical. Use modern best practices.`;
+ 
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || isGenerating) return;
   input.value = '';
-}
-
-// ─── НАВИГАЦИЯ ───
-function transitionTo(id) {
-  document.querySelectorAll('.screen').forEach(s => {
-    s.classList.remove('active');
-    s.classList.add('exit');
-  });
-  setTimeout(() => {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('exit'));
-    document.getElementById('screen-' + id).classList.add('active');
-  }, 750);
-}
-
-// ─── ИНИЦИАЛИЗАЦИЯ ───
-window.onload = () => {
-  initSphere('sphere-canvas', 500);
-  initSphere('app-sphere-canvas', 260);
-  
-  setTimeout(() => document.getElementById('tagline').classList.add('visible'), 500);
-  setTimeout(() => document.getElementById('cta-group').classList.add('visible'), 1200);
-  
-  // Фон
-  const bg = document.getElementById('bg-canvas');
-  const btx = bg.getContext('2d');
-  let W = bg.width = window.innerWidth, H = bg.height = window.innerHeight;
-  const pts = Array(60).fill().map(() => ({ x: Math.random()*W, y: Math.random()*H, vx: Math.random()-0.5, vy: Math.random()-0.5 }));
-  function drawBg() {
-    btx.clearRect(0,0,W,H);
-    pts.forEach(p => {
-      p.x = (p.x + p.vx + W) % W; p.y = (p.y + p.vy + H) % H;
-      btx.fillStyle = 'rgba(110,231,247,0.1)'; btx.beginPath(); btx.arc(p.x, p.y, 1, 0, 7); btx.fill();
+  input.style.height = 'auto';
+  addChatMessage(text, 'user');
+  chatHistory.push({ role: 'user', content: text });
+  isGenerating = true;
+  document.getElementById('send-btn').disabled = true;
+  const typingEl = addTypingIndicator();
+  const msgs = document.getElementById('chat-messages');
+  msgs.scrollTop = msgs.scrollHeight;
+ 
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: chatHistory
+      })
     });
-    requestAnimationFrame(drawBg);
+    const data = await response.json();
+    typingEl.remove();
+    const reply = data.content?.map(b => b.text || '').join('') || 'Sorry, I could not generate a response.';
+    chatHistory.push({ role: 'assistant', content: reply });
+    addChatMessage(reply, 'ai');
+  } catch (err) {
+    typingEl.remove();
+    addChatMessage('Sorry, there was an error. Please try again.', 'ai');
   }
-  drawBg();
-};
+  isGenerating = false;
+  document.getElementById('send-btn').disabled = false;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+ 
+function addChatMessage(text, role) {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role === 'user' ? 'user' : ''}`;
+  const avContent = role === 'user' ? userName.charAt(0).toUpperCase() : 'AI';
+  const avClass = role === 'user' ? 'user-av' : 'ai';
+  let bubbleContent = role === 'ai' ? parseCodeBlocks(text) : escapeHtml(text);
+  div.innerHTML = `<div class="chat-av ${avClass}">${avContent}</div><div class="chat-bubble">${bubbleContent}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+ 
+function parseCodeBlocks(text) {
+  let html = '';
+  const parts = text.split(/(```[\s\S]*?```)/g);
+  parts.forEach(part => {
+    if (part.startsWith('```')) {
+      const lines = part.slice(3).replace(/```$/, '').split('\n');
+      const lang = lines[0].trim() || 'code';
+      const code = lines.slice(1).join('\n').trim();
+      const id = 'code-' + Math.random().toString(36).slice(2);
+      html += `<div class="code-block"><div class="code-header"><span>${lang}</span><button class="code-copy" onclick="copyCode('${id}')">Copy</button></div><pre id="${id}">${escapeHtml(code)}</pre></div>`;
+    } else if (part.trim()) {
+      html += `<p style="margin-bottom:7px">${escapeHtml(part.trim()).replace(/\n/g,'<br>')}</p>`;
+    }
+  });
+  return html;
+}
+ 
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+ 
+function copyCode(id) {
+  const pre = document.getElementById(id);
+  if (!pre) return;
+  navigator.clipboard.writeText(pre.textContent).then(() => showToast('Copied!')).catch(() => showToast('Copy failed.'));
+}
+ 
+function addTypingIndicator() {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = 'chat-msg';
+  div.innerHTML = `<div class="chat-av ai">AI</div><div class="chat-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(div);
+  return div;
+}
+ 
+function handleChatKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+ 
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+}
+ 
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
 </script>
 </body>
 </html>
+ 
