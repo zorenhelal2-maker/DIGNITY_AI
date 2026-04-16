@@ -887,130 +887,99 @@ let userName = 'Alex';
 let isGenerating = false;
 let chatHistory = [];
 
-// ─── SPHERE RENDERING ─────────────────────────────────────────────────
+// ─── STATE ───────────────────────────────────────────────────────────
+let currentScreen = 'landing';
+let currentMode = '3d';
+let currentAuthTab = 'login';
+let userName = 'Alex';
+let isGenerating = false;
+let chatHistory = [];
+
+// ─── NEW POINT CLOUD SPHERE RENDERING ────────────────────────────────
 function createSphereRenderer(canvas, size) {
   const ctx = canvas.getContext('2d');
   const cx = size / 2, cy = size / 2;
-  let t = 0;
+  const particleCount = 750; // Количество точек для плотности
+  const particles = [];
+  let angleX = 0;
+  let angleY = 0;
   let animId;
 
-  function drawSphere(distort) {
+  // Инициализация точек (равномерное распределение по сфере)
+  for (let i = 0; i < particleCount; i++) {
+    const phi = Math.acos(-1 + (2 * i) / particleCount);
+    const theta = Math.sqrt(particleCount * Math.PI) * phi;
+    particles.push({
+      x: Math.cos(theta) * Math.sin(phi),
+      y: Math.sin(theta) * Math.sin(phi),
+      z: Math.cos(phi),
+      baseSize: Math.random() * 1.2 + 0.6
+    });
+  }
+
+  function draw() {
     ctx.clearRect(0, 0, size, size);
-    const r = size * 0.38;
-    const pts = 72;
+    
+    // Плавное вращение + легкий дрейф
+    angleX += 0.0025;
+    angleY += 0.004;
 
-    // Outer glow
-    const grd = ctx.createRadialGradient(cx - r*0.3, cy - r*0.3, r*0.1, cx, cy, r*1.5);
-    grd.addColorStop(0, 'rgba(110,231,247,0.12)');
-    grd.addColorStop(0.5, 'rgba(180,142,247,0.06)');
-    grd.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.beginPath();
-    ctx.arc(cx, cy, r * 1.5, 0, Math.PI * 2);
-    ctx.fillStyle = grd;
-    ctx.fill();
+    const radius = size * 0.38;
+    
+    // Сортировка по Z (глубине), чтобы ближние точки перекрывали дальние
+    const sortedParticles = [...particles].sort((a, b) => {
+        // Вычисляем Z после вращения для сортировки
+        const zA = a.z * Math.cos(angleX) + (a.y * Math.sin(angleY)) * Math.sin(angleX);
+        const zB = b.z * Math.cos(angleX) + (b.y * Math.sin(angleY)) * Math.sin(angleX);
+        return zA - zB;
+    });
 
-    // Distorted sphere path
-    ctx.beginPath();
-    for (let i = 0; i <= pts; i++) {
-      const angle = (i / pts) * Math.PI * 2;
-      const noise = distort * (
-        Math.sin(angle * 3 + t * 1.7) * 0.06 +
-        Math.sin(angle * 5 - t * 1.2) * 0.04 +
-        Math.sin(angle * 7 + t * 2.3) * 0.025
-      );
-      const rad = r * (1 + noise);
-      const x = cx + rad * Math.cos(angle);
-      const y = cy + rad * Math.sin(angle);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
+    sortedParticles.forEach(p => {
+      // Матрица вращения Y
+      let x1 = p.x * Math.cos(angleY) - p.z * Math.sin(angleY);
+      let z1 = p.z * Math.cos(angleY) + p.x * Math.sin(angleY);
+      
+      // Матрица вращения X
+      let y2 = p.y * Math.cos(angleX) - z1 * Math.sin(angleX);
+      let z2 = z1 * Math.cos(angleX) + p.y * Math.sin(angleX);
 
-    // Fill gradient
-    const fill = ctx.createRadialGradient(cx - r*0.35, cy - r*0.35, r*0.05, cx, cy, r);
-    fill.addColorStop(0, '#7ae8fa');
-    fill.addColorStop(0.3, '#5b7fe8');
-    fill.addColorStop(0.65, '#6b3fa8');
-    fill.addColorStop(1, '#0d0820');
-    ctx.fillStyle = fill;
-    ctx.fill();
-
-    // Mesh lines (latitude)
-    for (let lat = -3; lat <= 3; lat++) {
-      const yLine = cy + (lat / 3.5) * r;
-      if (Math.abs(yLine - cy) >= r) continue;
-      const hw = Math.sqrt(r*r - (yLine - cy)**2);
+      // Перспективная проекция (эффект 3D)
+      const perspective = 1.5;
+      const scale = perspective / (perspective - z2); 
+      const screenX = cx + x1 * radius * scale;
+      const screenY = cy + y2 * radius * scale;
+      
+      // Размер точки зависит от близости (Z)
+      const pointSize = p.baseSize * scale;
+      
+      // Цвет: перелив между вашими цветами Create Account
+      // #6ee7f7 (cyan) и #b48ef7 (purple)
+      const ratio = (z2 + 1) / 2; // нормализация Z от 0 до 1
+      
       ctx.beginPath();
-      const latNoise = distort * Math.sin(lat + t * 0.8) * 0.03;
-      for (let i = 0; i <= 60; i++) {
-        const ang = (i / 60) * Math.PI * 2;
-        const n = distort * Math.sin(ang * 4 + t + lat) * 0.025;
-        const rx2 = (hw * (1 + n)) * Math.cos(ang);
-        const ry = ((yLine - cy) + (r * latNoise)) + cy;
-        const actualY = cy + (yLine - cy) * Math.sqrt(1 - (rx2/hw)**2 * 0.05);
-        ctx.lineTo(cx + rx2, yLine + n * r * 0.5);
+      ctx.arc(screenX, screenY, pointSize, 0, Math.PI * 2);
+      
+      // Смешиваем цвета визуально через прозрачность и условия
+      if (z2 > 0.2) {
+          ctx.fillStyle = '#6ee7f7'; // Ближние — голубые
+      } else if (z2 < -0.2) {
+          ctx.fillStyle = '#b48ef7'; // Дальние — фиолетовые
+      } else {
+          ctx.fillStyle = '#8fbaf7'; // Средние — микс
       }
-      ctx.strokeStyle = 'rgba(110,231,247,0.12)';
-      ctx.lineWidth = 0.6;
-      ctx.stroke();
-    }
+      
+      // Затухание для дальних точек
+      ctx.globalAlpha = Math.max(0.1, (z2 + 1.5) / 2.5);
+      ctx.fill();
+    });
 
-    // Mesh lines (longitude)
-    for (let lon = 0; lon < 8; lon++) {
-      const ang = (lon / 8) * Math.PI;
-      ctx.beginPath();
-      for (let i = 0; i <= 40; i++) {
-        const phi = (i / 40) * Math.PI;
-        const n = distort * Math.sin(phi * 3 + t * 1.1 + lon) * 0.04;
-        const sinP = Math.sin(phi);
-        const cosP = Math.cos(phi);
-        const x = cx + r * (1 + n) * sinP * Math.cos(ang);
-        const y = cy + r * (1 + n) * cosP;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.strokeStyle = 'rgba(180,142,247,0.10)';
-      ctx.lineWidth = 0.5;
-      ctx.stroke();
-    }
-
-    // Specular highlight
-    const spec = ctx.createRadialGradient(cx - r*0.4, cy - r*0.4, 0, cx - r*0.3, cy - r*0.3, r*0.55);
-    spec.addColorStop(0, 'rgba(255,255,255,0.28)');
-    spec.addColorStop(0.4, 'rgba(255,255,255,0.06)');
-    spec.addColorStop(1, 'rgba(255,255,255,0)');
-
-    ctx.beginPath();
-    for (let i = 0; i <= pts; i++) {
-      const angle = (i / pts) * Math.PI * 2;
-      const noise = distort * (Math.sin(angle * 3 + t * 1.7) * 0.06 + Math.sin(angle * 5 - t * 1.2) * 0.04);
-      const rad = r * (1 + noise);
-      const x = cx + rad * Math.cos(angle);
-      const y = cy + rad * Math.sin(angle);
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.fillStyle = spec;
-    ctx.fill();
+    animId = requestAnimationFrame(draw);
   }
 
-  let distortTarget = 1;
-  let distortCurrent = 1;
-  let distortTimer = 0;
-
-  function tick() {
-    t += 0.012;
-    distortTimer--;
-    if (distortTimer <= 0) {
-      distortTarget = Math.random() < 0.3 ? 2.5 + Math.random() * 1.5 : 1;
-      distortTimer = 80 + Math.random() * 120;
-    }
-    distortCurrent += (distortTarget - distortCurrent) * 0.04;
-    drawSphere(distortCurrent);
-    animId = requestAnimationFrame(tick);
-  }
-
-  function start() { animId = requestAnimationFrame(tick); }
-  function stop() { cancelAnimationFrame(animId); }
-
-  return { start, stop };
+  return { 
+    start: () => { animId = requestAnimationFrame(draw); }, 
+    stop: () => { cancelAnimationFrame(animId); } 
+  };
 }
 
 // Init spheres
@@ -1019,6 +988,172 @@ landingSphere.start();
 
 let appSphere = null;
 
+// ─── PARTICLE BACKGROUND ──────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  for (let i = 0; i < 60; i++) {
+    particles.push({
+      x: Math.random() * 1000,
+      y: Math.random() * 1000,
+      r: Math.random() * 1.5 + 0.3,
+      vx: (Math.random() - 0.5) * 0.15,
+      vy: (Math.random() - 0.5) * 0.15,
+      opacity: Math.random() * 0.4 + 0.1,
+    });
+  }
+
+  function drawBg() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.x = (p.x + p.vx + W) % W;
+      p.y = (p.y + p.vy + H) % H;
+      ctx.beginPath();
+      ctx.arc(p.x / 1000 * W, p.y / 1000 * H, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(110,231,247,${p.opacity})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(drawBg);
+  }
+  drawBg();
+})();
+
+// ─── LANDING ANIMATION ────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('tagline').classList.add('visible');
+    document.getElementById('sub').classList.add('visible');
+  }, 400);
+  setTimeout(() => {
+    document.getElementById('cta-group').classList.add('visible');
+  }, 1000); // Ускорил появление кнопок
+});
+
+// ─── SCREEN TRANSITIONS ───────────────────────────────────────────────
+function showAuth(mode) {
+  document.getElementById('cta-group').style.display = 'none';
+  switchAuthTab(mode);
+  transitionTo('auth');
+}
+
+function backToLanding() {
+  document.getElementById('cta-group').style.display = 'flex';
+  document.getElementById('cta-group').style.opacity = '1';
+  document.getElementById('cta-group').style.transform = 'translateY(0)';
+  transitionTo('landing');
+}
+
+function transitionTo(target) {
+  const screens = { landing: 'screen-landing', auth: 'screen-auth', app: 'screen-app' };
+  const current = document.querySelector('.screen.active');
+  if (current) {
+    current.classList.add('exit');
+    setTimeout(() => { current.classList.remove('active', 'exit'); }, 700);
+  }
+  setTimeout(() => {
+    const next = document.getElementById(screens[target]);
+    next.classList.add('active');
+    currentScreen = target;
+
+    if (target === 'app' && !appSphere) {
+      appSphere = createSphereRenderer(document.getElementById('app-sphere-canvas'), 220);
+      appSphere.start();
+    }
+  }, 350);
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  currentAuthTab = tab;
+  document.getElementById('tab-login').classList.toggle('active', tab === 'login');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('auth-mode-label').textContent = tab === 'login' ? 'Welcome back' : 'Create your account';
+  document.getElementById('field-name').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('auth-submit-btn').textContent = tab === 'login' ? 'Log in' : 'Create account';
+}
+
+function handleAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-password').value;
+  if (!email || !pass) { showToast('Please fill in all fields.'); return; }
+
+  if (currentAuthTab === 'signup') {
+    const name = document.getElementById('auth-name').value.trim() || email.split('@')[0];
+    userName = name;
+  } else {
+    userName = email.split('@')[0];
+  }
+
+  const initial = userName.charAt(0).toUpperCase();
+  document.getElementById('user-avatar').textContent = initial;
+  document.getElementById('user-name-label').textContent = userName;
+
+  document.getElementById('cta-group').style.display = 'none';
+  transitionTo('app');
+}
+
+// ─── MODE SLIDER ──────────────────────────────────────────────────────
+function setMode(mode) {
+  if (mode === currentMode) return;
+  currentMode = mode;
+
+  const btn3d = document.getElementById('btn-3d');
+  const btnCode = document.getElementById('btn-code');
+  const track = document.getElementById('slider-track');
+  const panel3d = document.getElementById('panel-3d');
+  const panelCode = document.getElementById('panel-code');
+
+  if (mode === 'code') {
+    btn3d.classList.remove('active');
+    btnCode.classList.add('active');
+    track.style.transform = `translateX(${btn3d.offsetWidth}px)`;
+    track.style.width = btnCode.offsetWidth + 'px';
+
+    panel3d.classList.add('exit-left');
+    panel3d.classList.remove('active');
+    setTimeout(() => { panel3d.classList.remove('exit-left'); }, 400);
+    setTimeout(() => { panelCode.classList.add('active'); }, 50);
+  } else {
+    btnCode.classList.remove('active');
+    btn3d.classList.add('active');
+    track.style.transform = 'translateX(0)';
+    track.style.width = btn3d.offsetWidth + 'px';
+
+    panelCode.classList.add('exit-left');
+    panelCode.classList.remove('active');
+    setTimeout(() => { panelCode.classList.remove('exit-left'); }, 400);
+    setTimeout(() => { panel3d.classList.add('active'); }, 50);
+  }
+}
+
+// Init slider track width
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const btn3d = document.getElementById('btn-3d');
+    const track = document.getElementById('slider-track');
+    if (btn3d && track) {
+      track.style.width = btn3d.offsetWidth + 'px';
+    }
+  }, 100);
+});
+
+// Доп. функции для работы интерфейса
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
 // ─── PARTICLE BACKGROUND ──────────────────────────────────────────────
 (function() {
   const canvas = document.getElementById('bg-canvas');
